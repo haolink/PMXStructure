@@ -47,7 +47,7 @@ namespace PMXStructure.PMXClasses.Helpers
             switch(indexLength)
             {
                 case 1:
-                    result = (int)(buffer[0]);
+                    result = (int)(sbyte)(buffer[0]);
                     break;
                 case 2:
                     result = BitConverter.ToInt16(buffer, 0);
@@ -66,7 +66,7 @@ namespace PMXStructure.PMXClasses.Helpers
             switch (indexLength)
             {
                 case 1:
-                    buffer[0] = (byte)value;
+                    buffer[0] = (byte)(sbyte)value;
                     break;
                 case 2:
                     buffer = BitConverter.GetBytes((Int16)value);

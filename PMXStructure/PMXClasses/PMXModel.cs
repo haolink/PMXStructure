@@ -14,9 +14,8 @@ namespace PMXStructure.PMXClasses
     {
         private PMXModel()
         {
-            this.Vertices = new List<PMXVertex>();
-            this.Triangles = new List<PMXTriangle>();
-            this.Textures = new List<string>();
+            this.Vertices = new List<PMXVertex>();            
+            this.Materials = new List<PMXMaterial>();
         }
 
         public string NameJP { get; set; }
@@ -25,8 +24,7 @@ namespace PMXStructure.PMXClasses
         public string DescriptionEN { get; set; }
 
         public List<PMXVertex> Vertices { get; }
-        public List<PMXTriangle> Triangles { get; }
-        public List<string> Textures { get; }
+        public List<PMXMaterial> Materials { get; }
 
         public static PMXModel LoadFromPMXFile(string pmxFile)
         {
@@ -99,22 +97,46 @@ namespace PMXStructure.PMXClasses
             }
 
             uint triangleCount = vertexRefCount / 3;
+            List<PMXTriangle> importTriangles = new List<PMXTriangle>();
 
             for (int i = 0; i < triangleCount; i++)
             {
                 PMXTriangle t = new PMXTriangle(md);
                 t.LoadFromStream(br, settings);
-                md.Triangles.Add(t);
+                importTriangles.Add(t);
             }
 
             //Textures
             uint textureCount = br.ReadUInt32();
+
+            List<string> importTextures = new List<string>();        
+
             for (int i = 0; i < textureCount; i++)
             {
                 string tex = PMXParser.ReadString(br, settings.TextEncoding);
-                md.Textures.Add(tex);
+                importTextures.Add(tex);
+            }
+            string[] textures = importTextures.ToArray();
+
+            //Textures
+            uint materialCount = br.ReadUInt32();
+
+            for (int i = 0; i < materialCount; i++)
+            {
+                PMXMaterial mt = new PMXMaterial(md);
+                mt.LoadFromStream(br, settings, textures, importTriangles);
+                md.Materials.Add(mt);
             }
 
+            if(importTriangles.Count > 0)
+            {
+                throw new InvalidDataException("Model materials don't cover all triangles!");
+            }
+
+            br.BaseStream.Close();
+            
+            br = null;
+            fs = null;
 
             return md;
         }

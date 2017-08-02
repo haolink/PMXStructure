@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PMXClasses\General\RGBColor.cs" />
     <Compile Include="PMXClasses\Helpers\MMDImportSettings.cs" />
     <Compile Include="PMXClasses\Helpers\PMXParser.cs" />
     <Compile Include="PMXClasses\Parts\PMXBasePart.cs" />
