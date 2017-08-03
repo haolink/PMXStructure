@@ -69,6 +69,11 @@ namespace PMXStructure.PMXClasses.Parts
         public PMXMaterial(PMXModel model) : base(model)
         {
             this.Triangles = new List<PMXTriangle>();
+
+            this.Diffuse = new PMXColorRGB();
+            this.Specular = new PMXColorRGB();
+            this.Ambient = new PMXColorRGB();
+            this.EdgeColor = new PMXColorRGBA();
         }
 
         public override void FinaliseAfterImport()

@@ -35,6 +35,11 @@ namespace PMXStructure.PMXClasses.Parts
         public PMXVertex(PMXModel model) : base(model)
         {
             this.AddedUVs = new List<AddUVSet>();
+
+            this.Position = new PMXVector3();
+            this.Normals = new PMXVector3();
+            this.UV = new PMXVector2();
+            this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
@@ -57,19 +62,19 @@ namespace PMXStructure.PMXClasses.Parts
             
             switch(deformType)
             {
-                case 0:
+                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF1:
                     this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
                     break;
-                case 1:
+                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF2:
                     this.Deform = new PMXVertexDeformBDEF2(this.Model, this);
                     break;
-                case 2:
+                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF4:
                     this.Deform = new PMXVertexDeformBDEF4(this.Model, this);
                     break;
-                case 3:
+                case PMXBaseDeform.DEFORM_IDENTIFY_SDEF:
                     this.Deform = new PMXVertexDeformSDEF(this.Model, this);
                     break;
-                case 4:
+                case PMXBaseDeform.DEFORM_IDENTIFY_QDEF:
                 default:
                     this.Deform = new PMXVertexDeformQDEF(this.Model, this);
                     break;

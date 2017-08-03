@@ -44,15 +44,23 @@
   <ItemGroup>
     <Compile Include="PMXClasses\General\PMXColorRGB.cs" />
     <Compile Include="PMXClasses\General\PMXColorRGBA.cs" />
+    <Compile Include="PMXClasses\General\PMXQuaternion.cs" />
     <Compile Include="PMXClasses\General\PMXVector2.cs" />
     <Compile Include="PMXClasses\General\PMXVector3.cs" />
     <Compile Include="PMXClasses\Helpers\MMDImportSettings.cs" />
     <Compile Include="PMXClasses\Helpers\PMXParser.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetBase.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetBone.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetGroup.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetMaterial.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetUV.cs" />
+    <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetVertex.cs" />
     <Compile Include="PMXClasses\Parts\PMXBasePart.cs" />
     <Compile Include="PMXClasses\Parts\PMXBone.cs" />
     <Compile Include="PMXClasses\Parts\PMXIK.cs" />
     <Compile Include="PMXClasses\Parts\PMXIKLink.cs" />
     <Compile Include="PMXClasses\Parts\PMXMaterial.cs" />
+    <Compile Include="PMXClasses\Parts\PMXMorph.cs" />
     <Compile Include="PMXClasses\Parts\PMXTriangle.cs" />
     <Compile Include="PMXClasses\Parts\PMXVertex.cs" />
     <Compile Include="PMXClasses\Parts\VertexDeform\PMXBaseDeform.cs" />

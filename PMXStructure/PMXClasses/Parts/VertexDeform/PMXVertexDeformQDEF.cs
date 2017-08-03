@@ -10,7 +10,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
     {
         public PMXVertexDeformQDEF(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
-            this.deformIdentifier = 4;
+            this.deformIdentifier = PMXBaseDeform.DEFORM_IDENTIFY_QDEF;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
 
         public PMXVertexDeformBDEF2(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
-            this.deformIdentifier = 1;
+            this.deformIdentifier = PMXBaseDeform.DEFORM_IDENTIFY_BDEF2;
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)

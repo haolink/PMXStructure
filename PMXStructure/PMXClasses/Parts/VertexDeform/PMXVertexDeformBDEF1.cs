@@ -15,7 +15,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
 
         public PMXVertexDeformBDEF1(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
-            this.deformIdentifier = 0;
+            this.deformIdentifier = PMXBaseDeform.DEFORM_IDENTIFY_BDEF1;
         }
 
         public override void FinaliseAfterImport()

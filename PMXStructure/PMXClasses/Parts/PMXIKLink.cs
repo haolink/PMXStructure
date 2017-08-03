@@ -23,6 +23,8 @@ namespace PMXStructure.PMXClasses.Parts
         public PMXIKLink(PMXModel model, PMXIK ik) : base(model)
         {
             this.IK = ik;
+            this.Minimum = new PMXVector3();
+            this.Maximum = new PMXVector3();
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)

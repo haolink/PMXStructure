@@ -12,13 +12,6 @@ namespace PMXStructure.PMXClasses
 {
     public class PMXModel
     {
-        private PMXModel()
-        {
-            this.Vertices = new List<PMXVertex>();            
-            this.Materials = new List<PMXMaterial>();
-            this.Bones = new List<PMXBone>();
-        }
-
         public string NameJP { get; set; }
         public string NameEN { get; set; }
         public string DescriptionJP { get; set; }
@@ -27,6 +20,15 @@ namespace PMXStructure.PMXClasses
         public List<PMXVertex> Vertices { get; private set;  }
         public List<PMXMaterial> Materials { get; private set; }
         public List<PMXBone> Bones { get; private set; }
+        public List<PMXMorph> Morphs { get; private set; }
+
+        private PMXModel()
+        {
+            this.Vertices = new List<PMXVertex>();
+            this.Materials = new List<PMXMaterial>();
+            this.Bones = new List<PMXBone>();
+            this.Morphs = new List<PMXMorph>();
+        }
 
         public static PMXModel LoadFromPMXFile(string pmxFile)
         {
@@ -144,6 +146,17 @@ namespace PMXStructure.PMXClasses
                 bn.LoadFromStream(br, settings);
                 md.Bones.Add(bn);
             }
+
+            //Morphs
+            uint morphCount = br.ReadUInt32();
+
+            for (int i = 0; i < morphCount; i++)
+            {
+                PMXMorph mrph = new PMXMorph(md);
+                mrph.LoadFromStream(br, settings);
+                md.Morphs.Add(mrph);
+            }
+
 
             br.BaseStream.Close();
             
