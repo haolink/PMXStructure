@@ -42,14 +42,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PMXClasses\General\RGBColor.cs" />
+    <Compile Include="PMXClasses\General\PMXColorRGB.cs" />
+    <Compile Include="PMXClasses\General\PMXColorRGBA.cs" />
+    <Compile Include="PMXClasses\General\PMXVector2.cs" />
+    <Compile Include="PMXClasses\General\PMXVector3.cs" />
     <Compile Include="PMXClasses\Helpers\MMDImportSettings.cs" />
     <Compile Include="PMXClasses\Helpers\PMXParser.cs" />
     <Compile Include="PMXClasses\Parts\PMXBasePart.cs" />
     <Compile Include="PMXClasses\Parts\PMXBone.cs" />
+    <Compile Include="PMXClasses\Parts\PMXIK.cs" />
+    <Compile Include="PMXClasses\Parts\PMXIKLink.cs" />
     <Compile Include="PMXClasses\Parts\PMXMaterial.cs" />
     <Compile Include="PMXClasses\Parts\PMXTriangle.cs" />
     <Compile Include="PMXClasses\Parts\PMXVertex.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXBaseDeform.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformBDEF1.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformBDEF2.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformBDEF4.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformQDEF.cs" />
+    <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformSDEF.cs" />
     <Compile Include="PMXClasses\PMXModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -57,5 +68,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

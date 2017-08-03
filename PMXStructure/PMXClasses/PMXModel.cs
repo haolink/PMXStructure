@@ -16,6 +16,7 @@ namespace PMXStructure.PMXClasses
         {
             this.Vertices = new List<PMXVertex>();            
             this.Materials = new List<PMXMaterial>();
+            this.Bones = new List<PMXBone>();
         }
 
         public string NameJP { get; set; }
@@ -23,8 +24,9 @@ namespace PMXStructure.PMXClasses
         public string DescriptionJP { get; set; }
         public string DescriptionEN { get; set; }
 
-        public List<PMXVertex> Vertices { get; }
-        public List<PMXMaterial> Materials { get; }
+        public List<PMXVertex> Vertices { get; private set;  }
+        public List<PMXMaterial> Materials { get; private set; }
+        public List<PMXBone> Bones { get; private set; }
 
         public static PMXModel LoadFromPMXFile(string pmxFile)
         {
@@ -131,6 +133,16 @@ namespace PMXStructure.PMXClasses
             if(importTriangles.Count > 0)
             {
                 throw new InvalidDataException("Model materials don't cover all triangles!");
+            }
+
+            //Bones
+            uint boneCount = br.ReadUInt32();
+
+            for (int i = 0; i < boneCount; i++)
+            {
+                PMXBone bn = new PMXBone(md);
+                bn.LoadFromStream(br, settings);
+                md.Bones.Add(bn);
             }
 
             br.BaseStream.Close();

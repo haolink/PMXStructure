@@ -50,7 +50,7 @@ namespace PMXStructure.PMXClasses.Helpers
                     result = (int)(sbyte)(buffer[0]);
                     break;
                 case 2:
-                    result = BitConverter.ToInt16(buffer, 0);
+                    result = (int)(short)BitConverter.ToInt16(buffer, 0);                    
                     break;
                 case 4:
                     result = BitConverter.ToInt32(buffer, 0);
@@ -77,6 +77,6 @@ namespace PMXStructure.PMXClasses.Helpers
             }
 
             bw.BaseStream.Write(buffer, 0, indexLength);
-        }
+        }        
     }
 }

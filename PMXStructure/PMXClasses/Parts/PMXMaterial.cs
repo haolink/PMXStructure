@@ -12,6 +12,13 @@ namespace PMXStructure.PMXClasses.Parts
 {
     public class PMXMaterial : PMXBasePart
     {
+        public const byte MATERIAL_DOUBLE_SIDED = 0x01;
+        public const byte MATERIAL_GROUND_SHADOW = 0x02;
+        public const byte MATERIAL_SELF_SHADOW = 0x04;
+        public const byte MATERIAL_SELF_SHADOW_PLUS = 0x08;
+        public const byte MATERIAL_EDGE_ENABLED = 0x10;
+        public const byte MATERIAL_VERTEX_COLOR = 0x20;
+
         public enum PMXSphereMode
         {
             Disabled = 0,
@@ -30,15 +37,14 @@ namespace PMXStructure.PMXClasses.Parts
         public string NameJP { get; set; }
         public string NameEN { get; set; }
 
-        public RGBColor Diffuse { get; set; }
+        public PMXColorRGB Diffuse { get; set; }
         public float Alpha;
-        public RGBColor Specular { get; set; }
+        public PMXColorRGB Specular { get; set; }
         public float SpecularFactor;
-        public RGBColor Ambient { get; set; }
+        public PMXColorRGB Ambient { get; set; }
 
         public bool EdgeEnabled { get; set; }
-        public RGBColor EdgeColor { get; set; }
-        public float EdgeAlpha { get; set; }
+        public PMXColorRGBA EdgeColor { get; set; }
         public float EdgeSize { get; set; }
 
         public bool DoubleSided { get; set; }
@@ -98,16 +104,15 @@ namespace PMXStructure.PMXClasses.Parts
             this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
             this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            this.Diffuse = RGBColor.LoadFromStreamStatic(br);
+            this.Diffuse = PMXColorRGB.LoadFromStreamStatic(br);
             this.Alpha = br.ReadSingle();
-            this.Specular = RGBColor.LoadFromStreamStatic(br);
+            this.Specular = PMXColorRGB.LoadFromStreamStatic(br);
             this.SpecularFactor = br.ReadSingle();
-            this.Ambient = RGBColor.LoadFromStreamStatic(br);
+            this.Ambient = PMXColorRGB.LoadFromStreamStatic(br);
 
             byte flags = br.ReadByte();
 
-            this.EdgeColor = RGBColor.LoadFromStreamStatic(br);
-            this.EdgeAlpha = br.ReadSingle();
+            this.EdgeColor = PMXColorRGBA.LoadFromStreamStatic(br);
             this.EdgeSize = br.ReadSingle();
 
             int diffIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
@@ -152,17 +157,17 @@ namespace PMXStructure.PMXClasses.Parts
 
             //Flag parsing
             //1st bit = double sided
-            this.DoubleSided = ((flags & 0x01) != 0);
+            this.DoubleSided = ((flags & PMXMaterial.MATERIAL_DOUBLE_SIDED) != 0);
             //2nd bit = ground shadow
-            this.GroundShadow = ((flags & 0x02) != 0);
+            this.GroundShadow = ((flags & PMXMaterial.MATERIAL_GROUND_SHADOW) != 0);
             //3rd bit - self shadow
-            this.SelfShadow = ((flags & 0x04) != 0);
+            this.SelfShadow = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW) != 0);
             //4th bit - self shadow+
-            this.SelfShadowPlus = ((flags & 0x08) != 0);
+            this.SelfShadowPlus = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW_PLUS) != 0);
             //5th bit - has edge line
-            this.EdgeEnabled = ((flags & 0x10) != 0);
+            this.EdgeEnabled = ((flags & PMXMaterial.MATERIAL_EDGE_ENABLED) != 0);
             //6th bit - shine with vertex colour
-            this.VertexColor = ((flags & 0x20) != 0);
+            this.VertexColor = ((flags & PMXMaterial.MATERIAL_VERTEX_COLOR) != 0);
 
             //7th and 8bit - Tri, Point or Line shadow
             int shadowType = ((flags & 0xC0) >> 6);

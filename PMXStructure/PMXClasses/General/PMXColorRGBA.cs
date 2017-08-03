@@ -8,15 +8,16 @@ using System.IO;
 
 namespace PMXStructure.PMXClasses.General
 {
-    public class RGBColor
+    public class PMXColorRGBA
     {
         public float R { get; set; }
         public float G { get; set; }
         public float B { get; set; }
+        public float A { get; set; }
 
-        public static RGBColor LoadFromStreamStatic(BinaryReader br)
+        public static PMXColorRGBA LoadFromStreamStatic(BinaryReader br)
         {
-            RGBColor res = new RGBColor();
+            PMXColorRGBA res = new PMXColorRGBA();
             res.LoadFromStream(br);
             return res;
         }
@@ -26,6 +27,7 @@ namespace PMXStructure.PMXClasses.General
             this.R = br.ReadSingle();
             this.G = br.ReadSingle();
             this.B = br.ReadSingle();
+            this.A = br.ReadSingle();
         }
     }
 }
