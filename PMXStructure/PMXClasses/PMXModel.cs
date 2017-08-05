@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using PMXStructure.PMXClasses.Helpers;
 using PMXStructure.PMXClasses.Parts;
@@ -21,6 +19,9 @@ namespace PMXStructure.PMXClasses
         public List<PMXMaterial> Materials { get; private set; }
         public List<PMXBone> Bones { get; private set; }
         public List<PMXMorph> Morphs { get; private set; }
+        public List<PMXDisplaySlot> DisplaySlots { get; private set; }
+        public List<PMXRigidBody> RigidBodies { get; private set; }
+        public List<PMXJoint> Joints { get; private set; }
 
         private PMXModel()
         {
@@ -28,6 +29,13 @@ namespace PMXStructure.PMXClasses
             this.Materials = new List<PMXMaterial>();
             this.Bones = new List<PMXBone>();
             this.Morphs = new List<PMXMorph>();
+
+            this.DisplaySlots = new List<PMXDisplaySlot>();
+            this.DisplaySlots.Add(new PMXDisplaySlot(this) { NameEN = "Root", NameJP = "Root" });
+            this.DisplaySlots.Add(new PMXDisplaySlot(this) { NameEN = "Exp", NameJP = "表情" });
+
+            this.RigidBodies = new List<PMXRigidBody>();
+            this.Joints = new List<PMXJoint>();
         }
 
         public static PMXModel LoadFromPMXFile(string pmxFile)
@@ -157,6 +165,36 @@ namespace PMXStructure.PMXClasses
                 md.Morphs.Add(mrph);
             }
 
+            //Display frames
+            md.DisplaySlots.Clear();
+            uint displayCount = br.ReadUInt32();
+
+            for (int i = 0; i < displayCount; i++)
+            {
+                PMXDisplaySlot ds = new PMXDisplaySlot(md);
+                ds.LoadFromStream(br, settings);
+                md.DisplaySlots.Add(ds);
+            }
+
+            //Rigid bodies
+            uint rigidBodyCount = br.ReadUInt32();
+
+            for (int i = 0; i < rigidBodyCount; i++)
+            {
+                PMXRigidBody rb = new PMXRigidBody(md);
+                rb.LoadFromStream(br, settings);
+                md.RigidBodies.Add(rb);
+            }
+
+            //Joints
+            uint jointsCount = br.ReadUInt32();
+
+            for (int i = 0; i < jointsCount; i++)
+            {
+                PMXJoint jt = new PMXJoint(md);
+                jt.LoadFromStream(br, settings);
+                md.Joints.Add(jt);
+            }
 
             br.BaseStream.Close();
             

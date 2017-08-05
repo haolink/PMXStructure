@@ -33,13 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PMXClasses\General\PMXColorRGB.cs" />
@@ -57,12 +50,16 @@
     <Compile Include="PMXClasses\Parts\Morphs\PMXMorphOffsetVertex.cs" />
     <Compile Include="PMXClasses\Parts\PMXBasePart.cs" />
     <Compile Include="PMXClasses\Parts\PMXBone.cs" />
+    <Compile Include="PMXClasses\Parts\PMXDisplaySlot.cs" />
     <Compile Include="PMXClasses\Parts\PMXIK.cs" />
     <Compile Include="PMXClasses\Parts\PMXIKLink.cs" />
+    <Compile Include="PMXClasses\Parts\PMXJoint.cs" />
     <Compile Include="PMXClasses\Parts\PMXMaterial.cs" />
     <Compile Include="PMXClasses\Parts\PMXMorph.cs" />
+    <Compile Include="PMXClasses\Parts\PMXRigidBody.cs" />
     <Compile Include="PMXClasses\Parts\PMXTriangle.cs" />
     <Compile Include="PMXClasses\Parts\PMXVertex.cs" />
+    <Compile Include="PMXClasses\Parts\RigidBodies\PMXNoCollissionGroup.cs" />
     <Compile Include="PMXClasses\Parts\VertexDeform\PMXBaseDeform.cs" />
     <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformBDEF1.cs" />
     <Compile Include="PMXClasses\Parts\VertexDeform\PMXVertexDeformBDEF2.cs" />
