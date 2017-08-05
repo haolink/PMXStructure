@@ -23,5 +23,7 @@ namespace PMXStructure.PMXClasses.Parts
         public abstract void LoadFromStream(BinaryReader br, MMDImportSettings importSettings);
 
         public abstract void FinaliseAfterImport();
+
+        public abstract void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings);
     }
 }

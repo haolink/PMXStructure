@@ -25,5 +25,14 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             this.R0 = PMXVector3.LoadFromStreamStatic(br);
             this.R1 = PMXVector3.LoadFromStreamStatic(br);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            base.WriteToStream(bw, exportSettings);
+
+            this.C.WriteToStream(bw);
+            this.R0.WriteToStream(bw);
+            this.R1.WriteToStream(bw);
+        }
     }
 }

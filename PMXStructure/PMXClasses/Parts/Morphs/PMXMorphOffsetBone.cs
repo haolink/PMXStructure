@@ -32,5 +32,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.Translation = PMXVector3.LoadFromStreamStatic(br);
             this.Rotation = PMXQuaternion.LoadFromStreamStatic(br);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

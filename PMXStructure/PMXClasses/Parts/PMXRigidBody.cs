@@ -95,5 +95,10 @@ namespace PMXStructure.PMXClasses.Parts
 
             this.Type = (BodyType)(int)br.ReadByte();
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -47,5 +47,21 @@ namespace PMXStructure.PMXClasses.Parts
                 this.Bone = this.Model.Bones[this.boneIndex];
             }
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone, exportSettings, true));
+
+            if(this.HasLimits)
+            {
+                bw.Write((byte)1);
+                this.Minimum.WriteToStream(bw);
+                this.Maximum.WriteToStream(bw);
+            }
+            else
+            {
+                bw.Write((byte)0);
+            }
+        }
     }
 }

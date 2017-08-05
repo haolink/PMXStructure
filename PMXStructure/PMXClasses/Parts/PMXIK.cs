@@ -54,5 +54,18 @@ namespace PMXStructure.PMXClasses.Parts
                 link.FinaliseAfterImport();
             }
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Target, exportSettings, true));
+            bw.Write((Int32)this.Loop);
+            bw.Write(this.RadianLimit);
+
+            bw.Write((Int32)this.IKLinks.Count);
+            foreach(PMXIKLink link in this.IKLinks)
+            {
+                link.WriteToStream(bw, exportSettings);
+            }
+        }
     }
 }

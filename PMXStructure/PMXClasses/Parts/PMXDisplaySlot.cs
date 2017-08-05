@@ -51,5 +51,10 @@ namespace PMXStructure.PMXClasses.Parts
                 }
             }
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

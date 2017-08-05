@@ -62,5 +62,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.UVTranslation = PMXVector2.LoadFromStreamStatic(br);
             this.UVTranslation2 = PMXVector2.LoadFromStreamStatic(br);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

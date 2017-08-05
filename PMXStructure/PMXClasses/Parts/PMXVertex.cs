@@ -9,15 +9,7 @@ using PMXStructure.PMXClasses.Parts.VertexDeform;
 namespace PMXStructure.PMXClasses.Parts
 {
     public class PMXVertex : PMXBasePart
-    {       
-        public class AddUVSet
-        {
-            public float X { get; set; }
-            public float Y { get; set; }
-            public float Z { get; set; }
-            public float W { get; set; }
-        }
-
+    {
         public PMXVector3 Position { get; set; }
         public PMXVector3 Normals { get; set; }
 
@@ -25,18 +17,22 @@ namespace PMXStructure.PMXClasses.Parts
 
         public PMXVector2 UV { get; set; }
 
-        public List<AddUVSet> AddedUVs { get; private set; }
+        public List<PMXQuaternion> AddedUVs { get; private set; }
 
-        public PMXBaseDeform Deform { get; set; }        
+        public PMXBaseDeform Deform { get; set; }
+
+        private Dictionary<int, int> _exportHashNumbers; //Export only
 
         public PMXVertex(PMXModel model) : base(model)
         {
-            this.AddedUVs = new List<AddUVSet>();
+            this.AddedUVs = new List<PMXQuaternion>();
 
             this.Position = new PMXVector3();
             this.Normals = new PMXVector3();
             this.UV = new PMXVector2();
             this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
+
+            this._exportHashNumbers = new Dictionary<int, int>();
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
@@ -47,12 +43,7 @@ namespace PMXStructure.PMXClasses.Parts
 
             for (int i = 0; i < importSettings.ExtendedUV; i++)
             {
-                AddUVSet aus = new AddUVSet();
-                aus.X = br.ReadSingle();
-                aus.Y = br.ReadSingle();
-                aus.Z = br.ReadSingle();
-                aus.W = br.ReadSingle();
-                this.AddedUVs.Add(aus);
+                this.AddedUVs.Add(PMXQuaternion.LoadFromStreamStatic(br));                
             }
 
             byte deformType = br.ReadByte();
@@ -94,6 +85,73 @@ namespace PMXStructure.PMXClasses.Parts
                 throw ex;
             }
             
+        }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            this.Position.WriteToStream(bw);
+            this.Normals.WriteToStream(bw);
+            this.UV.WriteToStream(bw);
+
+            for(int i = 0; i < exportSettings.ExtendedUV; i++)
+            {
+                PMXQuaternion set = ((i >= this.AddedUVs.Count) ? (new PMXQuaternion()) : this.AddedUVs[i]);
+                set.WriteToStream(bw);
+            }
+
+            this.Deform.WriteToStream(bw, exportSettings);
+
+            bw.Write(this.OutlineMagnification);
+        }
+
+        /// <summary>
+        /// Checks if the bone is part of a given model.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static int CheckIndexInModel(PMXVertex vtx, PMXExportSettings settings)
+        {
+            if (vtx == null)
+            {
+                throw new InvalidDataException("Vertex mustn't be null!");
+            }
+
+            if(vtx._exportHashNumbers.ContainsKey(settings.ExportHash))
+            {
+                return vtx._exportHashNumbers[settings.ExportHash];
+            }
+
+            PMXModel model = settings.Model;
+
+            int index = model.Vertices.IndexOf(vtx);
+            if (index < 0)
+            {
+                throw new InvalidDataException("Vertex not a member of model!");
+            }
+            return index;
+        }
+
+        /// <summary>
+        /// Set a vertex index into the vertex to allow very quick exporting.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="settings"></param>
+        public void AddIndexForExport(PMXExportSettings settings, int index)
+        {
+            this._exportHashNumbers[settings.ExportHash] = index;
+        }
+
+        /// <summary>
+        /// Remove a vertex index into the vertex to allow very quick exporting.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="settings"></param>
+        public void RemoveIndexForExport(PMXExportSettings settings)
+        {
+            if(this._exportHashNumbers.ContainsKey(settings.ExportHash))
+            {
+                this._exportHashNumbers.Remove(settings.ExportHash);
+            }            
         }
     }
 }

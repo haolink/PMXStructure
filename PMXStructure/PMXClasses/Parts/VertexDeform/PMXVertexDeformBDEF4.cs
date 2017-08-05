@@ -40,5 +40,19 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             this.Bone3 = this.Model.Bones[bone3Index];
             this.Bone4 = this.Model.Bones[bone4Index];
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            bw.Write(this.deformIdentifier);
+
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone1, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone2, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone3, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone4, exportSettings));
+            bw.Write(this.Bone1Weight);
+            bw.Write(this.Bone2Weight);
+            bw.Write(this.Bone3Weight);
+            bw.Write(this.Bone4Weight);
+        }
     }
 }

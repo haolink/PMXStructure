@@ -64,6 +64,8 @@ namespace PMXStructure.PMXClasses.Parts
         public bool HasExternalParent { get; set; }
         public int ExternalParentKey { get; set; }
 
+        public bool TransformPhysicsFirst { get; set; }
+
         public PMXIK IK { get; set; }
 
         public PMXBone(PMXModel model) : base(model)
@@ -141,7 +143,7 @@ namespace PMXStructure.PMXClasses.Parts
             this.Rotatable = ((flags & PMXBone.BONE_CAN_ROTATE) != 0);
             this.Translatable = ((flags & PMXBone.BONE_CAN_TRANSLATE) != 0);
             this.Visible = ((flags & PMXBone.BONE_IS_VISIBLE) != 0);
-            this.Operating = ((flags & PMXBone.BONE_CAN_MANIPULATE) != 0);
+            this.Operating = ((flags & PMXBone.BONE_CAN_MANIPULATE) != 0);            
 
             bool extRotation = ((flags & PMXBone.BONE_IS_EXTERNAL_ROTATION) != 0);
             bool extTranslation = ((flags & PMXBone.BONE_IS_EXTERNAL_TRANSLATION) != 0);
@@ -181,6 +183,8 @@ namespace PMXStructure.PMXClasses.Parts
                 this.ExternalParentKey = br.ReadInt32();
             }
 
+            this.TransformPhysicsFirst = ((flags & PMXBone.BONE_IS_AFTER_PHYSICS_DEFORM) != 0);
+
             bool isIKBone = ((flags & PMXBone.BONE_IS_IK) != 0);
             if(isIKBone)
             {
@@ -192,5 +196,105 @@ namespace PMXStructure.PMXClasses.Parts
                 this.IK = null;
             }
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            short flags = 0x0000;
+
+            flags |= (short)(this.HasChildBone ? PMXBone.BONE_TAILPOS_IS_BONE : 0x0000);
+
+            flags |= (short)(this.Rotatable ? PMXBone.BONE_CAN_ROTATE : 0x0000);
+            flags |= (short)(this.Translatable ? PMXBone.BONE_CAN_TRANSLATE : 0x0000);
+            flags |= (short)(this.Visible ? PMXBone.BONE_IS_VISIBLE : 0x0000);
+            flags |= (short)(this.Operating ? PMXBone.BONE_CAN_MANIPULATE : 0x0000);
+
+            flags |= (short)((this.ExternalModificationType == BoneExternalModificationType.Both || this.ExternalModificationType == BoneExternalModificationType.Rotation) ? PMXBone.BONE_IS_EXTERNAL_ROTATION : 0x0000);
+            flags |= (short)((this.ExternalModificationType == BoneExternalModificationType.Both || this.ExternalModificationType == BoneExternalModificationType.Translation) ? PMXBone.BONE_IS_EXTERNAL_TRANSLATION : 0x0000);
+
+            flags |= (short)(this.FixedAxis ? PMXBone.BONE_HAS_FIXED_AXIS : 0x0000);
+            flags |= (short)(this.LocalCoordinates ? PMXBone.BONE_HAS_LOCAL_COORDINATE : 0x0000);
+            flags |= (short)(this.HasExternalParent ? PMXBone.BONE_IS_EXTERNAL_PARENT_DEFORM : 0x0000);
+
+            flags |= (short)(this.TransformPhysicsFirst ? PMXBone.BONE_IS_AFTER_PHYSICS_DEFORM : 0x0000);
+
+            flags |= (short)((this.IK != null) ? PMXBone.BONE_IS_IK : 0x0000);
+
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            this.Position.WriteToStream(bw);
+
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Parent, exportSettings, true));
+
+            bw.Write((Int32)this.Layer);
+            bw.Write((Int16)flags);
+
+            if(this.HasChildBone)
+            {
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.ChildBone, exportSettings, true));
+            }
+            else
+            {
+                this.ChildVector.WriteToStream(bw);
+            }
+
+            if (this.ExternalModificationType != BoneExternalModificationType.None)
+            {
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.ExternalBone, exportSettings, true));
+                bw.Write(this.ExternalBoneEffect);
+            }
+
+            if (this.FixedAxis)
+            {
+                this.AxisLimit.WriteToStream(bw);                
+            }
+
+            if (this.LocalCoordinates)
+            {
+                this.LocalCoordinatesX.WriteToStream(bw);
+                this.LocalCoordinatesZ.WriteToStream(bw);
+            }
+
+            if (this.HasExternalParent)
+            {
+                bw.Write((Int32)this.ExternalParentKey);
+            }
+
+            if(this.IK != null)
+            {
+                this.IK.WriteToStream(bw, exportSettings);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the bone is part of a given model.
+        /// </summary>
+        /// <param name="bn"></param>
+        /// <param name="exportSettings"></param>
+        /// <param name="nullAcceptable"></param>
+        /// <returns></returns>
+        public static int CheckIndexInModel(PMXBone bn, PMXExportSettings exportSettings, bool nullAcceptable = true)
+        {
+            if(bn == null)
+            {
+                if(nullAcceptable)
+                {
+                    return -1;
+                }
+                else
+                {
+                    throw new InvalidDataException("Bone mustn't be null!");
+                }
+            }
+
+            PMXModel model = exportSettings.Model;
+
+            int index = model.Bones.IndexOf(bn);
+            if(index < 0)
+            {
+                throw new InvalidDataException("Bone not a member of model!");
+            }
+            return index;
+        }        
     }
 }

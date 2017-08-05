@@ -8,6 +8,12 @@ namespace PMXStructure.PMXClasses.General
         public float U { get; set; }
         public float V { get; set; }
 
+        public PMXVector2()
+        {
+            this.U = 0.0f;
+            this.V = 0.0f;            
+        }
+
         public static PMXVector2 LoadFromStreamStatic(BinaryReader br)
         {
             PMXVector2 res = new PMXVector2();
@@ -19,6 +25,12 @@ namespace PMXStructure.PMXClasses.General
         {
             this.U = br.ReadSingle();
             this.V = br.ReadSingle();
+        }
+
+        public void WriteToStream(BinaryWriter bw)
+        {
+            bw.Write(this.U);
+            bw.Write(this.V);            
         }
     }
 }

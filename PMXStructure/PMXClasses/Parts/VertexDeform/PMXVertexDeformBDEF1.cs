@@ -24,5 +24,11 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
         {
             this.bone1Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            bw.Write(this.deformIdentifier);
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone1, exportSettings));
+        }
     }
 }

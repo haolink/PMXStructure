@@ -71,6 +71,20 @@ namespace PMXStructure.PMXClasses.Parts
             this.Specular = new PMXColorRGB();
             this.Ambient = new PMXColorRGB();
             this.EdgeColor = new PMXColorRGBA();
+
+            this.DoubleSided = false;
+            this.GroundShadow = true;
+            this.SelfShadow = true;
+            this.SelfShadowPlus = true;
+            this.EdgeEnabled = true;
+            this.VertexColor = false;
+
+            this.DiffuseTexture = null;
+            this.SphereTexture = null;
+            this.NonStandardToonTexture = null;
+
+            this.StandardToon = true;
+            this.StandardToonIndex = 0;
         }
 
         public override void FinaliseAfterImport()
@@ -121,7 +135,7 @@ namespace PMXStructure.PMXClasses.Parts
             this.DiffuseTexture = this.GetTextureFromIndex(diffIndex, textures);            
 
             int sphereIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
-            this.SphereTexture = this.GetTextureFromIndex(diffIndex, textures);
+            this.SphereTexture = this.GetTextureFromIndex(sphereIndex, textures);
 
             this.SphereMode = (PMXSphereMode)(int)(br.ReadByte());
 
@@ -174,6 +188,86 @@ namespace PMXStructure.PMXClasses.Parts
             //7th and 8bit - Tri, Point or Line shadow
             int shadowType = ((flags & 0xC0) >> 6);
             this.GroundShadowType = (PMXGroundShadowType)shadowType;
+        }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            this.WriteToStream(bw, exportSettings, null);
+        }
+
+        /// <summary>
+        /// Gets a texture index for exporting.
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="textures"></param>
+        /// <returns></returns>
+        private int GetTextureIndex(string texture, string[] textures)
+        {
+            if(texture == null)
+            {
+                return -1;
+            }
+
+            int index = Array.IndexOf<string>(textures, texture);
+
+            if (index >= 0)
+            {
+                return index;
+            }
+            else
+            {
+                throw new InvalidDataException("Texture " + texture + " is invalid");
+            }
+        }
+
+        public void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings, string[] textures)
+        {
+            if (textures == null)
+            {
+                textures = new string[0];
+            }
+
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            this.Diffuse.WriteToStream(bw);
+            bw.Write(this.Alpha);
+            this.Specular.WriteToStream(bw);
+            bw.Write(this.SpecularFactor);
+            this.Ambient.WriteToStream(bw);
+            
+            byte flags = (byte)(((int)this.GroundShadowType) << 6);
+            flags |= (byte)(this.DoubleSided ? PMXMaterial.MATERIAL_DOUBLE_SIDED : 0);
+            flags |= (byte)(this.GroundShadow ? PMXMaterial.MATERIAL_GROUND_SHADOW : 0);
+            flags |= (byte)(this.SelfShadow ? PMXMaterial.MATERIAL_SELF_SHADOW : 0);
+            flags |= (byte)(this.SelfShadowPlus ? PMXMaterial.MATERIAL_SELF_SHADOW_PLUS : 0);
+            flags |= (byte)(this.EdgeEnabled ? PMXMaterial.MATERIAL_EDGE_ENABLED : 0);
+            flags |= (byte)(this.VertexColor ? PMXMaterial.MATERIAL_VERTEX_COLOR : 0);
+            bw.Write(flags);
+
+            this.EdgeColor.WriteToStream(bw);
+            bw.Write(this.EdgeSize);
+
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.DiffuseTexture, textures));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.SphereTexture, textures));
+
+            bw.Write((byte)this.SphereMode);
+
+            if(this.StandardToon)
+            {
+                bw.Write((byte)1);
+                bw.Write(this.StandardToonIndex);
+            } 
+            else
+            {
+                bw.Write((byte)0);
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.NonStandardToonTexture, textures));
+            }
+
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.Comment);
+
+            int triangleVerticesCount = (this.Triangles.Count * 3);
+            bw.Write((Int32)triangleVerticesCount);
         }
     }
 }

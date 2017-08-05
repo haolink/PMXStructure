@@ -10,7 +10,8 @@ namespace PMXStructure
         {
             try
             {
-                PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Vocaloid\Miku\Appearance Miku\Appearance Miku.pmx");
+                PMXModel md = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Vocaloid\Miku\Appearance Miku\Appearance Miku.pmx");
+                md.SaveToFile(@"D:\mmd\Data\Model\Vocaloid\Miku\Appearance Miku\Appearance Miku_resave.pmx");
                 Console.WriteLine("Parsed 1");
                 PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Selfies\Link\Link.pmx");
                 Console.WriteLine("Parsed 2");

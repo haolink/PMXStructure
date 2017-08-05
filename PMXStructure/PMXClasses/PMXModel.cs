@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using PMXStructure.PMXClasses.Helpers;
 using PMXStructure.PMXClasses.Parts;
-using System.IO;
+
+using PMXStructure.PMXClasses.Parts.VertexDeform;
 
 namespace PMXStructure.PMXClasses
 {
@@ -216,6 +218,197 @@ namespace PMXStructure.PMXClasses
             }
 
             return md;
+        }
+
+        /// <summary>
+        /// Determines the required BitLength for saving a PMX file.
+        /// </summary>
+        /// <param name="itemCount"></param>
+        /// <returns></returns>
+        private byte DetermineRequiredBitLength(int itemCount)
+        {
+            if(itemCount <= sbyte.MaxValue)
+            {
+                return 1;
+            }
+            if(itemCount <= ushort.MaxValue)
+            {
+                return 2;
+            }
+            return 4;
+        }
+
+        /// <summary>
+        /// Only adds a string to a List if it's not null and doesn't already exist.
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <param name="verifyAdd"></param>
+        private void AddToListIfRequired(List<string> strings, string verifyAdd)
+        {
+            if(verifyAdd == null)
+            {
+                return;
+            }
+
+            if(!strings.Contains(verifyAdd))
+            {
+                strings.Add(verifyAdd);
+            }
+        }
+
+        /// <summary>
+        /// Saves a model to a stream.
+        /// </summary>
+        /// <param name="stream"></param>
+        public void SaveToStream(Stream stream)
+        {            
+            List<string> requiredTextureList = new List<string>(); //List of textures to export
+            int triangleCount = 0;
+            foreach (PMXMaterial mat in this.Materials)
+            {
+                this.AddToListIfRequired(requiredTextureList, mat.DiffuseTexture);
+                this.AddToListIfRequired(requiredTextureList, mat.SphereTexture);
+
+                if(!mat.StandardToon)
+                {
+                    this.AddToListIfRequired(requiredTextureList, mat.NonStandardToonTexture);
+                }
+
+                triangleCount += mat.Triangles.Count;
+            }
+
+            int maxAddUV = 0;
+            foreach(PMXVertex v in this.Vertices)
+            {
+                maxAddUV = Math.Max(v.AddedUVs.Count, maxAddUV);
+            }
+            if(maxAddUV > 4)
+            {
+                throw new InvalidDataException("Maximum Add UV data is 4");
+            }
+
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(ms);
+
+            byte[] magic = Encoding.ASCII.GetBytes("PMX ");
+            stream.Write(magic, 0, 4);
+
+            Random rnd = new Random();
+            int randomNumber = rnd.Next();
+
+            PMXExportSettings settings = new PMXExportSettings();
+            settings.Model = this;
+            settings.ExportHash = randomNumber;
+            settings.ExtendedUV = (byte)maxAddUV;
+            float version = 2.0f;
+
+            foreach (PMXJoint j in this.Joints)
+            {
+                if (j.Type != PMXJoint.JointType.SpringSixDOF)
+                {
+                    version = 2.1f;
+                    break;
+                }
+            }
+
+            bw.Write(version);
+
+            //Flag length
+            bw.Write((byte)8);
+
+            //Encoding (UTF-16 LE only)
+            settings.TextEncoding = Encoding.Unicode;
+            bw.Write((byte)0);
+            bw.Write((byte)settings.ExtendedUV);
+
+            settings.BitSettings.VertexIndexLength = this.DetermineRequiredBitLength(this.Vertices.Count);
+            settings.BitSettings.TextureIndexLength = this.DetermineRequiredBitLength(requiredTextureList.Count);
+            settings.BitSettings.MaterialIndexLength = this.DetermineRequiredBitLength(this.Materials.Count);
+            settings.BitSettings.BoneIndexLength = this.DetermineRequiredBitLength(this.Bones.Count);
+            settings.BitSettings.MorphIndexLength = this.DetermineRequiredBitLength(this.Morphs.Count);
+            settings.BitSettings.RigidBodyIndexLength = this.DetermineRequiredBitLength(this.RigidBodies.Count);
+
+            bw.Write(settings.BitSettings.VertexIndexLength);
+            bw.Write(settings.BitSettings.TextureIndexLength);
+            bw.Write(settings.BitSettings.MaterialIndexLength);
+            bw.Write(settings.BitSettings.BoneIndexLength);
+            bw.Write(settings.BitSettings.MorphIndexLength);
+            bw.Write(settings.BitSettings.RigidBodyIndexLength);
+
+            PMXParser.WriteString(bw, settings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, settings.TextEncoding, this.NameEN);
+            PMXParser.WriteString(bw, settings.TextEncoding, this.DescriptionJP);
+            PMXParser.WriteString(bw, settings.TextEncoding, this.DescriptionEN);
+
+            //Vertices
+            bw.Write((Int32)this.Vertices.Count);
+            int vtxIndex = 0;
+
+            foreach (PMXVertex v in this.Vertices)
+            {
+                v.AddIndexForExport(settings, vtxIndex);
+                v.WriteToStream(bw, settings);
+                vtxIndex++;
+            }
+
+            //Triangles
+            bw.Write((Int32)(triangleCount * 3));
+
+            foreach(PMXMaterial mat in this.Materials)
+            {
+                foreach(PMXTriangle t in mat.Triangles)
+                {
+                    t.WriteToStream(bw, settings);
+                }
+            }
+
+            //Textures
+            string[] textures = requiredTextureList.ToArray();
+            bw.Write((Int32)textures.Length);
+
+            foreach(string textureFile in textures)
+            {
+                PMXParser.WriteString(bw, settings.TextEncoding, textureFile);
+            }
+
+            //Materials
+            bw.Write((Int32)this.Materials.Count);
+
+            foreach(PMXMaterial mat in this.Materials)
+            {
+                mat.WriteToStream(bw, settings, textures);
+            }
+
+            //Bones
+            bw.Write((Int32)this.Bones.Count);
+
+            foreach (PMXBone bn in this.Bones)
+            {
+                bn.WriteToStream(bw, settings);
+            }
+
+
+            long length = ms.Position;
+            ms.Seek(0, SeekOrigin.Begin);
+
+            ms.CopyTo(stream);
+
+            ms.Close();
+            ms = null;
+        }
+
+        /// <summary>
+        /// Saves a model to a file name. (PMX export only)
+        /// </summary>
+        /// <param name="filename">PMX file name.</param>
+        public void SaveToFile(string filename)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            this.SaveToStream(fs);
+
+            fs.Close();
+            fs = null;
         }
     }    
 }

@@ -26,5 +26,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.morphTargetIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.MorphIndexLength);
             this.Strength = br.ReadSingle();
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

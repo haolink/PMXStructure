@@ -77,5 +77,10 @@ namespace PMXStructure.PMXClasses.Parts
         {
             //Not required
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

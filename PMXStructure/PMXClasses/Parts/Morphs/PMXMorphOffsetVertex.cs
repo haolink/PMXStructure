@@ -30,5 +30,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.Vertex = this.Model.Vertices[vtxIndex];
             this.Translation = PMXVector3.LoadFromStreamStatic(br);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

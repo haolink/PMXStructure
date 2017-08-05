@@ -66,6 +66,12 @@ namespace PMXStructure.PMXClasses.Parts.RigidBodies
             //Not required
         }
 
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Add(bool item)
         {
             throw new InvalidOperationException("Fixed size");
@@ -107,5 +113,6 @@ namespace PMXStructure.PMXClasses.Parts.RigidBodies
         {
             throw new InvalidOperationException("Fixed size");
         }
+
     }
 }

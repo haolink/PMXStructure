@@ -64,5 +64,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.SphereTextureFactor = PMXColorRGBA.LoadFromStreamStatic(br);
             this.ToonTextureFactor = PMXColorRGBA.LoadFromStreamStatic(br);
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

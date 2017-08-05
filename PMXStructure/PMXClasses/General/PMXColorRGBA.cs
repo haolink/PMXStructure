@@ -10,6 +10,14 @@ namespace PMXStructure.PMXClasses.General
         public float B { get; set; }
         public float A { get; set; }
 
+        public PMXColorRGBA()
+        {
+            this.R = 0.0f;
+            this.G = 0.0f;
+            this.B = 0.0f;
+            this.A = 0.0f;
+        }
+
         public static PMXColorRGBA LoadFromStreamStatic(BinaryReader br)
         {
             PMXColorRGBA res = new PMXColorRGBA();
@@ -23,6 +31,14 @@ namespace PMXStructure.PMXClasses.General
             this.G = br.ReadSingle();
             this.B = br.ReadSingle();
             this.A = br.ReadSingle();
+        }
+
+        public void WriteToStream(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+            bw.Write(this.A);
         }
     }
 }

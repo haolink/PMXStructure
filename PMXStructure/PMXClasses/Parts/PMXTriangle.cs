@@ -30,5 +30,12 @@ namespace PMXStructure.PMXClasses.Parts
             this.Vertex2 = this.Model.Vertices[index2];
             this.Vertex3 = this.Model.Vertices[index3];
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex1, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex2, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex3, exportSettings));
+        }
     }
 }

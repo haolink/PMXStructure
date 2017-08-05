@@ -98,5 +98,10 @@ namespace PMXStructure.PMXClasses.Parts
                 offset.FinaliseAfterImport();
             }
         }
+
+        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
