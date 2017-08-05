@@ -101,7 +101,61 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            bw.Write((byte)(int)this.Panel);
+
+            if(this.Offsets.Count == 0)
+            {
+                bw.Write((byte)0);
+            }
+            else
+            {
+                byte morphTypeId = this.Offsets[0].MorphTargetType;
+                bw.Write((byte)morphTypeId);
+                bw.Write((Int32)this.Offsets.Count);
+
+                foreach (PMXMorphOffsetBase offset in this.Offsets)
+                {
+                    if(offset.MorphTargetType != morphTypeId)
+                    {
+                        throw new InvalidDataException("Morph offset types mustn't be mixed types");
+                    }                    
+                    offset.WriteToStream(bw, exportSettings);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the morph is part of a given model.
+        /// </summary>
+        /// <param name="bn"></param>
+        /// <param name="exportSettings"></param>
+        /// <param name="nullAcceptable"></param>
+        /// <returns></returns>
+        public static int CheckIndexInModel(PMXMorph mrph, PMXExportSettings exportSettings, bool nullAcceptable = true)
+        {
+            if (mrph == null)
+            {
+                if (nullAcceptable)
+                {
+                    return -1;
+                }
+                else
+                {
+                    throw new InvalidDataException("Morph mustn't be null!");
+                }
+            }
+
+            PMXModel model = exportSettings.Model;
+
+            int index = model.Morphs.IndexOf(mrph);
+            if (index < 0)
+            {
+                throw new InvalidDataException("Morph not a member of model!");
+            }
+            return index;
         }
     }
 }

@@ -227,11 +227,11 @@ namespace PMXStructure.PMXClasses
         /// <returns></returns>
         private byte DetermineRequiredBitLength(int itemCount)
         {
-            if(itemCount <= sbyte.MaxValue)
+            if(itemCount < sbyte.MaxValue)
             {
                 return 1;
             }
-            if(itemCount <= ushort.MaxValue)
+            if(itemCount < ushort.MaxValue - 1) //Very strange logic!
             {
                 return 2;
             }
@@ -385,6 +385,43 @@ namespace PMXStructure.PMXClasses
             foreach (PMXBone bn in this.Bones)
             {
                 bn.WriteToStream(bw, settings);
+            }
+
+            //Morphs
+            bw.Write((Int32)this.Morphs.Count);
+
+            foreach (PMXMorph mrph in this.Morphs)
+            {
+                mrph.WriteToStream(bw, settings);
+            }
+
+            //Displays
+            bw.Write((Int32)this.DisplaySlots.Count);
+
+            foreach (PMXDisplaySlot dsp in this.DisplaySlots)
+            {
+                dsp.WriteToStream(bw, settings);
+            }
+
+            //Rigid bodies
+            bw.Write((Int32)this.RigidBodies.Count);
+
+            foreach (PMXRigidBody bdy in this.RigidBodies)
+            {
+                bdy.WriteToStream(bw, settings);
+            }
+
+            //Joints
+            bw.Write((Int32)this.Joints.Count);
+            foreach (PMXJoint jt in this.Joints)
+            {
+                jt.WriteToStream(bw, settings);
+            }
+
+            //Reset triangles
+            foreach (PMXVertex v in this.Vertices)
+            {
+                v.RemoveIndexForExport(settings);                
             }
 
 

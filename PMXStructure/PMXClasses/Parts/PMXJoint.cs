@@ -80,7 +80,22 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            bw.Write((byte)(int)this.Type);
+
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyA, exportSettings));
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyB, exportSettings));
+
+            this.Position.WriteToStream(bw);
+            this.Rotation.WriteToStream(bw);
+            this.TranslationLimitMin.WriteToStream(bw);
+            this.TranslationLimitMax.WriteToStream(bw);
+            this.RotationLimitMin.WriteToStream(bw);
+            this.RotationLimitMax.WriteToStream(bw);
+            this.SpringConstantTranslation.WriteToStream(bw);
+            this.SpringConstantRotation.WriteToStream(bw);
         }
     }
 }

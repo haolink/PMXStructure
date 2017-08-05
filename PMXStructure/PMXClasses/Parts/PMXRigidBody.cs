@@ -76,7 +76,14 @@ namespace PMXStructure.PMXClasses.Parts
             this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
             int boneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
-            this.Bone = this.Model.Bones[boneIndex];
+            if(boneIndex < 0)
+            {
+                this.Bone = null;
+            }
+            else
+            {
+                this.Bone = this.Model.Bones[boneIndex];
+            }            
 
             this.CollissionGroup = br.ReadByte();
             this.NoCollissionGroups.LoadFromStream(br, importSettings);            
@@ -98,7 +105,51 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone, exportSettings, true));
+
+            bw.Write((byte)this.CollissionGroup);
+            this.NoCollissionGroups.WriteToStream(bw, exportSettings);
+
+            bw.Write((byte)(int)this.Shape);
+            this._shapeSize.WriteToStream(bw);
+
+            this.Position.WriteToStream(bw);
+            this.Rotation.WriteToStream(bw);
+
+            bw.Write(this.Mass);
+            bw.Write(this.LinearDamping);
+            bw.Write(this.AngularDamping);
+            bw.Write(this.Repulsion);
+            bw.Write(this.Friction);
+
+            bw.Write((byte)(int)this.Type);            
+        }
+
+        /// <summary>
+        /// Checks if the rigid body is part of a given model.
+        /// </summary>
+        /// <param name="bdy"></param>
+        /// <param name="exportSettings"></param>
+        /// <param name="nullAcceptable"></param>
+        /// <returns></returns>
+        public static int CheckIndexInModel(PMXRigidBody bdy, PMXExportSettings exportSettings)
+        {
+            if (bdy == null)
+            {            
+                throw new InvalidDataException("Rigid body mustn't be null!");
+            }
+
+            PMXModel model = exportSettings.Model;
+
+            int index = model.RigidBodies.IndexOf(bdy);
+            if (index < 0)
+            {
+                throw new InvalidDataException("Rigid body is not a member of model!");
+            }
+            return index;
         }
     }
 }

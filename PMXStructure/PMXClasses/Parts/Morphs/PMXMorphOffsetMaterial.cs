@@ -50,7 +50,15 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
         {
             int mtIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.MaterialIndexLength);
 
-            this.Material = this.Model.Materials[mtIndex];
+            if(mtIndex < 0)
+            {
+                this.Material = null;
+            }
+            else
+            {
+                this.Material = this.Model.Materials[mtIndex];
+            }
+            
             this.Type = (MaterialMorphOffsetType)(int)br.ReadByte();
 
             this.Diffuse = PMXColorRGBA.LoadFromStreamStatic(br);
@@ -67,7 +75,20 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.MaterialIndexLength, PMXMaterial.CheckIndexInModel(this.Material, exportSettings, true));
+
+            bw.Write((byte)(int)this.Type);
+
+            this.Diffuse.WriteToStream(bw);
+            this.Specular.WriteToStream(bw);
+            this.Ambient.WriteToStream(bw);
+
+            this.EdgeColor.WriteToStream(bw);
+            bw.Write(this.EdgeSize);
+
+            this.TextureFactor.WriteToStream(bw);
+            this.SphereTextureFactor.WriteToStream(bw);
+            this.ToonTextureFactor.WriteToStream(bw);
         }
     }
 }

@@ -69,7 +69,16 @@ namespace PMXStructure.PMXClasses.Parts.RigidBodies
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            byte[] buffer = new byte[2];
+
+            this._noCollissionGroup.CopyTo(buffer, 0);
+
+            for (int i = 0; i < 2; i++)
+            {
+                buffer[i] = (byte)(~((int)buffer[i]) & 0xFF);
+            }
+
+            bw.BaseStream.Write(buffer, 0, 2);
         }
 
         public void Add(bool item)

@@ -269,5 +269,37 @@ namespace PMXStructure.PMXClasses.Parts
             int triangleVerticesCount = (this.Triangles.Count * 3);
             bw.Write((Int32)triangleVerticesCount);
         }
+
+
+        /// <summary>
+        /// Checks if the material is part of a given model.
+        /// </summary>
+        /// <param name="bn"></param>
+        /// <param name="exportSettings"></param>
+        /// <param name="nullAcceptable"></param>
+        /// <returns></returns>
+        public static int CheckIndexInModel(PMXMaterial mat, PMXExportSettings exportSettings, bool nullAcceptable = true)
+        {
+            if (mat == null)
+            {
+                if (nullAcceptable)
+                {
+                    return -1;
+                }
+                else
+                {
+                    throw new InvalidDataException("Material mustn't be null!");
+                }
+            }
+
+            PMXModel model = exportSettings.Model;
+
+            int index = model.Materials.IndexOf(mat);
+            if (index < 0)
+            {
+                throw new InvalidDataException("Material not a member of model!");
+            }
+            return index;
+        }
     }
 }

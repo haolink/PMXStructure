@@ -46,7 +46,7 @@ namespace PMXStructure.PMXClasses.Parts
                         break;
                     case PMXDisplaySlot.REF_IDENTIFY_MORPH:
                         int morphIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.MorphIndexLength);
-                        this.References.Add(this.Model.Bones[morphIndex]);
+                        this.References.Add(this.Model.Morphs[morphIndex]);
                         break;
                 }
             }
@@ -54,7 +54,37 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+            bool isImportant = (this.Model.DisplaySlots.IndexOf(this) <= 1); //Root and EXP Displays
+            if(isImportant)
+            {
+                bw.Write((byte)1);
+            }
+            else
+            {
+                bw.Write((byte)0);
+            }
+
+            bw.Write((Int32)this.References.Count);
+            foreach(PMXBasePart rfr in this.References)
+            {
+                if(rfr is PMXBone)
+                {
+                    bw.Write((byte)PMXDisplaySlot.REF_IDENTIFY_BONE);
+                    PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel((PMXBone)rfr, exportSettings, false));
+                }
+                else if(rfr is PMXMorph)
+                {
+                    bw.Write((byte)PMXDisplaySlot.REF_IDENTIFY_MORPH);
+                    PMXParser.WriteIndex(bw, exportSettings.BitSettings.MorphIndexLength, PMXMorph.CheckIndexInModel((PMXMorph)rfr, exportSettings, false));
+                } 
+                else
+                {
+                    throw new InvalidDataException("Invalid reference in display slots. Only bones and morphs are supported!");
+                }
+            }
         }
     }
 }

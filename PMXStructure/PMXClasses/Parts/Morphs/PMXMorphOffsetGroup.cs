@@ -29,7 +29,8 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.MorphIndexLength, PMXMorph.CheckIndexInModel(this.Morph, exportSettings, false));
+            bw.Write(this.Strength);
         }
     }
 }

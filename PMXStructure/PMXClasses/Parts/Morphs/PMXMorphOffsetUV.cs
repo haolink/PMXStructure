@@ -65,7 +65,10 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
-            throw new NotImplementedException();
+            PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex, exportSettings));
+
+            this.UVTranslation.WriteToStream(bw);
+            this.UVTranslation2.WriteToStream(bw);
         }
     }
 }

@@ -44,10 +44,18 @@ namespace PMXStructure.PMXClasses.Helpers
             switch(indexLength)
             {
                 case 1:
-                    result = (int)(sbyte)(buffer[0]);
+                    result = (int)(buffer[0]);
+                    if(result == byte.MaxValue)
+                    {
+                        result = -1;
+                    }
                     break;
                 case 2:
-                    result = (int)(short)BitConverter.ToInt16(buffer, 0);                    
+                    result = (int)(ushort)BitConverter.ToInt16(buffer, 0);                    
+                    if(result == ushort.MaxValue)
+                    {
+                        result = -1;
+                    }
                     break;
                 case 4:
                     result = BitConverter.ToInt32(buffer, 0);
@@ -63,10 +71,25 @@ namespace PMXStructure.PMXClasses.Helpers
             switch (indexLength)
             {
                 case 1:
-                    buffer[0] = (byte)(sbyte)value;
+                    if(value == -1)
+                    {
+                        buffer[0] = 0xFF;
+                    }
+                    else
+                    {
+                        buffer[0] = (byte)value;
+                    }
                     break;
                 case 2:
-                    buffer = BitConverter.GetBytes((Int16)value);
+                    if (value == -1)
+                    {
+                        buffer[0] = 0xFF;
+                        buffer[1] = 0xFF;
+                    }
+                    else
+                    {
+                        buffer = BitConverter.GetBytes((ushort)value);
+                    }                    
                     break;
                 case 4:
                     buffer = BitConverter.GetBytes((Int32)value);
