@@ -67,7 +67,7 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            this.NoCollissionGroups.FinaliseAfterImport();
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)

@@ -73,7 +73,46 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            if(this.parentIndex == -1)
+            {
+                this.Parent = null;
+            } else
+            {
+                this.Parent = this.Model.Bones[this.parentIndex];
+            }
+
+            if(this.HasChildBone)
+            {
+                if (this.childBoneIndex == -1)
+                {
+                    this.ChildBone = null;
+                }
+                else
+                {
+                    this.ChildBone = this.Model.Bones[this.childBoneIndex];
+                }
+            }            
+
+            if (this.ExternalModificationType != BoneExternalModificationType.None)
+            {
+                if(this.externalBoneIndex == -1)
+                {
+                    this.ExternalBone = null;
+                }
+                else
+                {
+                    this.ExternalBone = this.Model.Bones[this.externalBoneIndex];
+                }                
+            }
+            else
+            {
+                this.ExternalBone = null;
+            }
+            
+            if(this.IK != null)
+            {
+                this.IK.FinaliseAfterImport();
+            }
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
@@ -148,6 +187,9 @@ namespace PMXStructure.PMXClasses.Parts
                 PMXIK ikData = new PMXIK(this.Model, this);
                 ikData.LoadFromStream(br, importSettings);
                 this.IK = ikData;
+            } else
+            {
+                this.IK = null;
             }
         }
     }

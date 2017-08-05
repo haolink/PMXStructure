@@ -63,7 +63,7 @@ namespace PMXStructure.PMXClasses.Parts.RigidBodies
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            //Not required
         }
 
         public void Add(bool item)

@@ -21,7 +21,7 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            //Not required
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)

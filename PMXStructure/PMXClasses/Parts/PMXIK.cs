@@ -40,7 +40,19 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            if(this.boneTargetIndex == -1)
+            {
+                this.Target = null;
+            }
+            else
+            {
+                this.Target = this.Model.Bones[this.boneTargetIndex];
+            }
+
+            foreach(PMXIKLink link in this.IKLinks)
+            {
+                link.FinaliseAfterImport();
+            }
         }
     }
 }

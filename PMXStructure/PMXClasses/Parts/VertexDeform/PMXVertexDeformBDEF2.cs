@@ -9,7 +9,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
     {
         public float Bone1Weight { get; set; } //Bone 1 weighing
         public PMXBone Bone2 { get; set; } //Bone 2
-        private int bone2Index; //Import only!
+        protected int bone2Index; //Import only!
 
         public PMXVertexDeformBDEF2(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
@@ -19,8 +19,14 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
             base.LoadFromStream(br, importSettings);
-            this.Bone1Weight = br.ReadSingle();
             this.bone2Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+            this.Bone1Weight = br.ReadSingle();
+        }
+
+        public override void FinaliseAfterImport()
+        {
+            base.FinaliseAfterImport();
+            this.Bone2 = this.Model.Bones[bone2Index];
         }
     }
 }

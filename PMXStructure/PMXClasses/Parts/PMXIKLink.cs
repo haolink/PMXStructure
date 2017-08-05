@@ -38,7 +38,14 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            if(boneIndex == -1)
+            {
+                this.Bone = null;
+            }
+            else
+            {
+                this.Bone = this.Model.Bones[this.boneIndex];
+            }
         }
     }
 }

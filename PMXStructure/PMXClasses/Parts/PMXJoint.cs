@@ -75,7 +75,7 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            //Not required
         }
     }
 }

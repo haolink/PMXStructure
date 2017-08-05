@@ -67,6 +67,7 @@ namespace PMXStructure.PMXClasses
             }
 
             MMDImportSettings settings = new MMDImportSettings(MMDImportSettings.ModelFormat.PMX);
+            List<PMXBasePart> allParts = new List<PMXBasePart>();
 
             byte text_encoding = br.ReadByte();
             settings.TextEncoding = 
@@ -98,6 +99,7 @@ namespace PMXStructure.PMXClasses
                 PMXVertex v = new PMXVertex(md);
                 v.LoadFromStream(br, settings);
                 md.Vertices.Add(v);
+                allParts.Add(v);
             }
 
             //Triangles
@@ -116,6 +118,7 @@ namespace PMXStructure.PMXClasses
                 PMXTriangle t = new PMXTriangle(md);
                 t.LoadFromStream(br, settings);
                 importTriangles.Add(t);
+                allParts.Add(t);
             }
 
             //Textures
@@ -126,7 +129,7 @@ namespace PMXStructure.PMXClasses
             for (int i = 0; i < textureCount; i++)
             {
                 string tex = PMXParser.ReadString(br, settings.TextEncoding);
-                importTextures.Add(tex);
+                importTextures.Add(tex);                
             }
             string[] textures = importTextures.ToArray();
 
@@ -138,6 +141,7 @@ namespace PMXStructure.PMXClasses
                 PMXMaterial mt = new PMXMaterial(md);
                 mt.LoadFromStream(br, settings, textures, importTriangles);
                 md.Materials.Add(mt);
+                allParts.Add(mt);
             }
 
             if(importTriangles.Count > 0)
@@ -153,6 +157,7 @@ namespace PMXStructure.PMXClasses
                 PMXBone bn = new PMXBone(md);
                 bn.LoadFromStream(br, settings);
                 md.Bones.Add(bn);
+                allParts.Add(bn);
             }
 
             //Morphs
@@ -163,6 +168,7 @@ namespace PMXStructure.PMXClasses
                 PMXMorph mrph = new PMXMorph(md);
                 mrph.LoadFromStream(br, settings);
                 md.Morphs.Add(mrph);
+                allParts.Add(mrph);
             }
 
             //Display frames
@@ -174,6 +180,7 @@ namespace PMXStructure.PMXClasses
                 PMXDisplaySlot ds = new PMXDisplaySlot(md);
                 ds.LoadFromStream(br, settings);
                 md.DisplaySlots.Add(ds);
+                allParts.Add(ds);
             }
 
             //Rigid bodies
@@ -184,6 +191,7 @@ namespace PMXStructure.PMXClasses
                 PMXRigidBody rb = new PMXRigidBody(md);
                 rb.LoadFromStream(br, settings);
                 md.RigidBodies.Add(rb);
+                allParts.Add(rb);
             }
 
             //Joints
@@ -194,12 +202,18 @@ namespace PMXStructure.PMXClasses
                 PMXJoint jt = new PMXJoint(md);
                 jt.LoadFromStream(br, settings);
                 md.Joints.Add(jt);
+                allParts.Add(jt);
             }
 
             br.BaseStream.Close();
             
             br = null;
             fs = null;
+
+            foreach(PMXBasePart part in allParts)
+            {
+                part.FinaliseAfterImport();
+            }
 
             return md;
         }

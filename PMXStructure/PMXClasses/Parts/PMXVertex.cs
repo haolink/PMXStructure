@@ -40,7 +40,7 @@ namespace PMXStructure.PMXClasses.Parts
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
-        {
+        {            
             this.Position = PMXVector3.LoadFromStreamStatic(br);
             this.Normals = PMXVector3.LoadFromStreamStatic(br);
             this.UV = PMXVector2.LoadFromStreamStatic(br);            
@@ -81,9 +81,19 @@ namespace PMXStructure.PMXClasses.Parts
             this.OutlineMagnification = br.ReadSingle();
         }
 
+        private static int cnt = 0;
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            try
+            {
+                this.Deform.FinaliseAfterImport();
+                cnt++;
+            } catch(Exception ex)
+            {
+                Console.WriteLine(cnt);
+                throw ex;
+            }
+            
         }
     }
 }

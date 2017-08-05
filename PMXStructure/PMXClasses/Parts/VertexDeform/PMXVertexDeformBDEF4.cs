@@ -24,13 +24,21 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            base.LoadFromStream(br, importSettings);
-
-            this.Bone2Weight = br.ReadSingle();
+            this.bone1Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+            this.bone2Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
             this.bone3Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
-            this.Bone3Weight = br.ReadSingle();
             this.bone4Index = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
-            this.Bone4Weight = br.ReadSingle();
+            this.Bone1Weight = br.ReadSingle();
+            this.Bone2Weight = br.ReadSingle();
+            this.Bone3Weight = br.ReadSingle();
+            this.Bone4Weight = br.ReadSingle();            
+        }
+
+        public override void FinaliseAfterImport()
+        {
+            base.FinaliseAfterImport();
+            this.Bone3 = this.Model.Bones[bone3Index];
+            this.Bone4 = this.Model.Bones[bone4Index];
         }
     }
 }

@@ -93,7 +93,10 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void FinaliseAfterImport()
         {
-            throw new NotImplementedException();
+            foreach(PMXMorphOffsetBase offset in this.Offsets)
+            {
+                offset.FinaliseAfterImport();
+            }
         }
     }
 }

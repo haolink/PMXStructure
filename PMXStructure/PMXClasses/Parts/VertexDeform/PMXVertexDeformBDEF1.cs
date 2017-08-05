@@ -8,7 +8,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
     public class PMXVertexDeformBDEF1 : PMXBaseDeform
     {
         public PMXBone Bone1 { get; set; } //Bone 1
-        private int bone1Index; //Import only!
+        protected int bone1Index; //Import only!
 
         public PMXVertexDeformBDEF1(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
@@ -17,7 +17,7 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
 
         public override void FinaliseAfterImport()
         {
-            //Not needed
+            this.Bone1 = this.Model.Bones[bone1Index];
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
