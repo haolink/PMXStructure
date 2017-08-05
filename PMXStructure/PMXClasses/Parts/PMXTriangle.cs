@@ -15,6 +15,13 @@ namespace PMXStructure.PMXClasses.Parts
         {
         }
 
+        public PMXTriangle(PMXModel model, PMXVertex vertex1, PMXVertex vertex2, PMXVertex vertex3) : this(model)
+        {
+            this.Vertex1 = vertex1;
+            this.Vertex2 = vertex2;
+            this.Vertex3 = vertex3;
+        }
+
         public override void FinaliseAfterImport()
         {
             //Not required

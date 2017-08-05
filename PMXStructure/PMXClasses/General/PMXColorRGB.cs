@@ -9,11 +9,15 @@ namespace PMXStructure.PMXClasses.General
         public float G { get; set; }
         public float B { get; set; }
 
-        public PMXColorRGB()
+        public PMXColorRGB() : this(0.0f, 0.0f, 0.0f)
+        {            
+        }
+
+        public PMXColorRGB(float R, float G, float B)
         {
-            this.R = 0.0f;
-            this.G = 0.0f;
-            this.B = 0.0f;
+            this.R = R;
+            this.G = G;
+            this.B = B;
         }
 
         public static PMXColorRGB LoadFromStreamStatic(BinaryReader br)

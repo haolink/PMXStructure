@@ -25,7 +25,7 @@ namespace PMXStructure.PMXClasses
         public List<PMXRigidBody> RigidBodies { get; private set; }
         public List<PMXJoint> Joints { get; private set; }
 
-        private PMXModel()
+        public PMXModel()
         {
             this.Vertices = new List<PMXVertex>();
             this.Materials = new List<PMXMaterial>();

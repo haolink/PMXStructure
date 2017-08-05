@@ -30,7 +30,14 @@ namespace PMXStructure.PMXClasses.Parts
             this.Position = new PMXVector3();
             this.Normals = new PMXVector3();
             this.UV = new PMXVector2();
-            this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
+
+            PMXVertexDeformBDEF1 df = new PMXVertexDeformBDEF1(this.Model, this);
+            this.Deform = df;
+
+            if (this.Model.Bones.Count > 0)
+            {
+                df.Bone1 = this.Model.Bones[0];
+            }
 
             this._exportHashNumbers = new Dictionary<int, int>();
         }
@@ -90,7 +97,10 @@ namespace PMXStructure.PMXClasses.Parts
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
             this.Position.WriteToStream(bw);
+
+            //this.Normals.Normalize();
             this.Normals.WriteToStream(bw);
+
             this.UV.WriteToStream(bw);
 
             for(int i = 0; i < exportSettings.ExtendedUV; i++)

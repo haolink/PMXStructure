@@ -16,6 +16,24 @@ namespace PMXStructure.PMXClasses.General
             this.Z = 0.0f;
         }
 
+        public void Normalize()
+        {
+            float value = (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);
+            if(value != 0.0f)
+            {
+                this.X /= value;
+                this.Y /= value;
+                this.Z /= value;
+            }            
+        }
+
+        public PMXVector3(float X, float Y, float Z)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.Z = Z;
+        }
+
         public static PMXVector3 LoadFromStreamStatic(BinaryReader br)
         {
             PMXVector3 res = new PMXVector3();

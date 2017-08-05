@@ -1,6 +1,8 @@
 ﻿using System;
 
 using PMXStructure.PMXClasses;
+using PMXStructure.PMXClasses.Parts;
+using PMXStructure.PMXClasses.General;
 
 using System.IO;
 
@@ -80,6 +82,8 @@ namespace PMXStructure
 
         static void Main(string[] args)
         {
+            PMXModel md;
+
             string tmpFile = @"D:\mmd\temp.pmx";
             string[] inputFiles = new string[]
             {
@@ -102,7 +106,7 @@ namespace PMXStructure
                 {
                     string fn = Path.GetFileNameWithoutExtension(file);
                     Console.Write(fn + " - ");
-                    PMXModel md = PMXModel.LoadFromPMXFile(file);
+                    md = PMXModel.LoadFromPMXFile(file);
                     Console.Write(" written - ");
                     md.SaveToFile(tmpFile);
 
@@ -118,6 +122,74 @@ namespace PMXStructure
             {
                 Console.WriteLine(ex.Message);
             }*/
+
+            md = new PMXModel();
+            md.NameEN = "Cube";
+            md.NameJP = "Cube";
+            md.DescriptionEN = "Cube Desc";
+            md.DescriptionJP = "Cube Desc";
+
+            PMXBone bn = new PMXBone(md);
+            bn.NameJP = "Root";
+            bn.NameEN = "Root";
+            bn.Position = new PMXVector3(0.0f, 0.0f, 0.0f);
+            bn.HasChildBone = false;
+            bn.ChildVector = new PMXVector3(0.0f, 15.0f, 0.0f);
+            bn.Translatable = true;
+
+            md.Bones.Add(bn);
+
+            PMXVector3[,] vertices = new PMXVector3[8,3]
+            {
+                { new PMXVector3(-5.0f,  0.0f, -5.0f), new PMXVector3(-1.0f, -1.0f, -1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
+                { new PMXVector3(-5.0f,  10.0f, -5.0f), new PMXVector3(-1.0f,  1.0f, -1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
+                { new PMXVector3( 5.0f,  0.0f, -5.0f), new PMXVector3( 1.0f, -1.0f, -1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
+                { new PMXVector3( 5.0f,  10.0f, -5.0f), new PMXVector3( 1.0f,  1.0f, -1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
+                { new PMXVector3(-5.0f,  0.0f,  5.0f), new PMXVector3(-1.0f, -1.0f,  1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
+                { new PMXVector3(-5.0f,  10.0f,  5.0f), new PMXVector3(-1.0f,  1.0f,  1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
+                { new PMXVector3( 5.0f,  0.0f,  5.0f), new PMXVector3( 1.0f, -1.0f,  1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
+                { new PMXVector3( 5.0f,  10.0f,  5.0f), new PMXVector3( 1.0f,  1.0f,  1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
+            };
+
+            for(int i = 0; i < 8; i++)
+            {
+                PMXVertex vtx = new PMXVertex(md);
+                vtx.Position = vertices[i, 0];
+                vtx.Normals = vertices[i, 1];
+                vtx.UV = new PMXVector2(vertices[i, 2].X, vertices[i, 2].Y);
+                
+                md.Vertices.Add(vtx);
+            }
+
+            PMXMaterial mat = new PMXMaterial(md);
+            mat.NameJP = "Base";
+            mat.NameEN = "Base";
+            mat.DiffuseTexture = "arrow.png";
+            mat.Diffuse = new PMXColorRGB(1.0f, 1.0f, 1.0f);
+            mat.Specular = new PMXColorRGB(0.0f, 0.0f, 0.0f);
+            mat.Ambient = new PMXColorRGB(0.7f, 0.7f, 0.7f);
+
+            int[,] triangleBases = new int[12, 3]
+            {
+                { 0, 1, 2 }, { 1, 3, 2 },
+                { 6, 4, 0 }, { 0, 2, 6 },
+                { 2, 3, 6 }, { 3, 7, 6 },
+                { 4, 5, 0 }, { 5, 1, 0 },
+                { 1, 5, 3 }, { 5, 7, 3 },
+                { 4, 6, 5 }, { 6, 7, 5 }
+            };
+
+            for(int i = 0; i < 12; i++)
+            {
+                PMXTriangle mxt = new PMXTriangle(md, md.Vertices[triangleBases[i, 0]], md.Vertices[triangleBases[i, 1]], md.Vertices[triangleBases[i, 2]]);
+                mat.Triangles.Add(mxt);
+            }
+            md.Materials.Add(mat);
+
+            md.DisplaySlots[0].References.Add(bn);
+
+            md.SaveToFile(@"D:\mmd\cube.pmx");
+
             Console.ReadLine();
         }
     }

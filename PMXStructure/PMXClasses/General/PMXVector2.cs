@@ -14,6 +14,12 @@ namespace PMXStructure.PMXClasses.General
             this.V = 0.0f;            
         }
 
+        public PMXVector2(float U, float V)
+        {
+            this.U = U;
+            this.V = V;
+        }
+
         public static PMXVector2 LoadFromStreamStatic(BinaryReader br)
         {
             PMXVector2 res = new PMXVector2();

@@ -70,7 +70,17 @@ namespace PMXStructure.PMXClasses.Parts
 
         public PMXBone(PMXModel model) : base(model)
         {
-        
+            this.Rotatable = true;
+            this.Translatable = false;
+            this.HasChildBone = true;
+            this.Operating = true;
+            this.Visible = true;
+
+            this.Position = new PMXVector3();
+            this.ChildVector = new PMXVector3();
+            this.AxisLimit = new PMXVector3();
+            this.LocalCoordinatesX = new PMXVector3();
+            this.LocalCoordinatesZ = new PMXVector3();
         }
 
         public override void FinaliseAfterImport()

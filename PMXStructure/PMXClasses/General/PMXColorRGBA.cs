@@ -10,12 +10,20 @@ namespace PMXStructure.PMXClasses.General
         public float B { get; set; }
         public float A { get; set; }
 
-        public PMXColorRGBA()
+        public PMXColorRGBA() : this(0.0f, 0.0f, 0.0f, 0.0f)
         {
-            this.R = 0.0f;
-            this.G = 0.0f;
-            this.B = 0.0f;
-            this.A = 0.0f;
+        }
+
+        public PMXColorRGBA(float R, float G, float B) : this(R, G, B, 0.0f)
+        {            
+        }
+
+        public PMXColorRGBA(float R, float G, float B, float A)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+            this.A = A;
         }
 
         public static PMXColorRGBA LoadFromStreamStatic(BinaryReader br)
