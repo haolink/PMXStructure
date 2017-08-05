@@ -188,6 +188,7 @@ namespace PMXStructure
 
             md.DisplaySlots[0].References.Add(bn);
 
+            md.NormalizeNormalVectors();
             md.SaveToFile(@"D:\mmd\cube.pmx");
 
             Console.ReadLine();

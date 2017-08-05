@@ -435,6 +435,19 @@ namespace PMXStructure.PMXClasses
         }
 
         /// <summary>
+        /// Normalise everything.
+        /// </summary>
+        public void NormalizeNormalVectors()
+        {
+            foreach(PMXVertex v in this.Vertices)
+            {
+                v.NormalizeNormalVector();
+            }
+        }
+        
+
+
+        /// <summary>
         /// Saves a model to a file name. (PMX export only)
         /// </summary>
         /// <param name="filename">PMX file name.</param>

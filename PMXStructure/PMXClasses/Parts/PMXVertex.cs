@@ -97,10 +97,7 @@ namespace PMXStructure.PMXClasses.Parts
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
         {
             this.Position.WriteToStream(bw);
-
-            //this.Normals.Normalize();
-            this.Normals.WriteToStream(bw);
-
+            this.Normals.WriteToStream(bw);        
             this.UV.WriteToStream(bw);
 
             for(int i = 0; i < exportSettings.ExtendedUV; i++)
@@ -139,6 +136,14 @@ namespace PMXStructure.PMXClasses.Parts
                 throw new InvalidDataException("Vertex not a member of model!");
             }
             return index;
+        }
+
+        /// <summary>
+        /// Normalising the normal vector.
+        /// </summary>
+        public void NormalizeNormalVector()
+        {
+            this.Normals.Normalize();
         }
 
         /// <summary>
