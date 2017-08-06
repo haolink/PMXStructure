@@ -81,5 +81,16 @@ namespace PMXStructure.PMXClasses.Parts
                 link.WriteToStream(bw, exportSettings);
             }
         }
+
+        /// <summary>
+        /// Updates IKs of PMD files for legs.
+        /// </summary>
+        public void UpdatePMDIKs()
+        {
+            foreach(PMXIKLink lnk in this.IKLinks)
+            {
+                lnk.UpdatePMDIKs();
+            }
+        }
     }
 }

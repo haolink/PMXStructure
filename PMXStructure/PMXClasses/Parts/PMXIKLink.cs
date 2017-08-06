@@ -70,5 +70,27 @@ namespace PMXStructure.PMXClasses.Parts
                 bw.Write((byte)0);
             }
         }
+
+        private static readonly string[] ThighBones = new string[]
+        {
+            "左ひざ", "右ひざ"
+        };
+
+        /// <summary>
+        /// Updates IKs of PMD files for legs.
+        /// </summary>
+        public void UpdatePMDIKs()
+        {
+            if(this.Bone != null)
+            {
+                string bnName = this.Bone.NameJP;
+                if(Array.IndexOf<string>(PMXIKLink.ThighBones, bnName) >= 0)
+                {
+                    this.HasLimits = true;
+                    this.Minimum = new PMXVector3((float)((-1) * Math.PI), 0.0f, 0.0f);
+                    this.Maximum = new PMXVector3((float)((-1.0f / 360.0f) * Math.PI), 0.0f, 0.0f);
+                }
+            }
+        }
     }
 }

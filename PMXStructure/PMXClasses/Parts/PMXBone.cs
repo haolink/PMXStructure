@@ -447,6 +447,17 @@ namespace PMXStructure.PMXClasses.Parts
         }
 
         /// <summary>
+        /// Updates IKs of PMD files for legs.
+        /// </summary>
+        public void UpdatePMDIKs()
+        {
+            if(this.IK != null)
+            {
+                this.IK.UpdatePMDIKs();
+            }
+        }
+
+        /// <summary>
         /// Checks if the bone is part of a given model.
         /// </summary>
         /// <param name="bn"></param>

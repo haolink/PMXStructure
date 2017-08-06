@@ -714,6 +714,7 @@ namespace PMXStructure.PMXClasses
             {
                 bn.ParsePMDTwist();
                 bn.CreateLocalCoodinateAxisForPMD();
+                bn.UpdatePMDIKs();
             }
 
             if (md.Morphs[0].NameJP == "base")
