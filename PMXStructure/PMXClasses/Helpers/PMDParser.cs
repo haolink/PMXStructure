@@ -26,7 +26,11 @@ namespace PMXStructure.PMXClasses.Helpers
             byte[] resBuffer = new byte[firstZero];
             Array.Copy(buffer, resBuffer, firstZero);
 
-            return textEncoding.GetString(resBuffer);
+            string res = textEncoding.GetString(resBuffer);
+
+            res = res.Replace("\n", "\r\n");
+
+            return res;
         }
     }
 }

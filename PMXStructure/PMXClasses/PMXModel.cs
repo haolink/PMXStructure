@@ -657,8 +657,8 @@ namespace PMXStructure.PMXClasses
             //Are there special toon textures?
             string[] defaultToons = new string[]
             {
-                "TOON01.bmp", "TOON02.bmp", "TOON03.bmp", "TOON04.bmp", "TOON05.bmp",
-                "TOON06.bmp", "TOON07.bmp", "TOON08.bmp", "TOON09.bmp", "TOON10.bmp"
+                "toon01.bmp", "toon02.bmp", "toon03.bmp", "toon04.bmp", "toon05.bmp",
+                "toon06.bmp", "toon07.bmp", "toon08.bmp", "toon09.bmp", "toon10.bmp"
             };
             string[] thisModelToons = new string[10];
 

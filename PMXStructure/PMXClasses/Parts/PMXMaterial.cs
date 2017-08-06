@@ -73,13 +73,14 @@ namespace PMXStructure.PMXClasses.Parts
 
             this.Specular = new PMXColorRGB();
             this.Ambient = new PMXColorRGB();
-            this.EdgeColor = new PMXColorRGBA();
+            this.EdgeColor = new PMXColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
 
             this.DoubleSided = false;
             this.GroundShadow = true;
             this.SelfShadow = true;
             this.SelfShadowPlus = true;
             this.EdgeEnabled = true;
+            this.EdgeSize = 1.0f;
             this.VertexColor = false;
 
             this.DiffuseTexture = null;
@@ -187,7 +188,10 @@ namespace PMXStructure.PMXClasses.Parts
 
                 this._pmdToonIndex = br.ReadSByte();
 
-                this.EdgeEnabled = (br.ReadByte() == 1);
+                byte flags = br.ReadByte();
+
+                this.EdgeEnabled = (flags == 1);
+                this.GroundShadow = this.EdgeEnabled;
 
                 triangleVerticesCount = br.ReadInt32();
 
@@ -356,7 +360,7 @@ namespace PMXStructure.PMXClasses.Parts
             string toonName = thisModelToons[this._pmdToonIndex];
             this._pmdToonIndex = -1;
 
-            string toonNameCL = toonName.ToUpperInvariant();
+            string toonNameCL = toonName.ToLowerInvariant();
 
             int index = Array.IndexOf<string>(defaultToons, toonNameCL);
             if(index < 0)

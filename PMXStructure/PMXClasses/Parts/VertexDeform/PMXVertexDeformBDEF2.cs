@@ -47,9 +47,13 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             if(weight >= 100)
             { //BDEF1
                 return PMXVertexDeformBDEF1.DeformFromPMDFile(model, vertex, boneId1);                
-            } //BDEF2
+            } 
+            else if(weight <= 0)
+            { //BDEF 1 as well
+                return PMXVertexDeformBDEF1.DeformFromPMDFile(model, vertex, boneId2);
+            }            
             else
-            {
+            { //BDEF2
                 PMXVertexDeformBDEF2 res = new PMXVertexDeformBDEF2(model, vertex);
                 res.bone1Index = (int)boneId1;
                 res.bone2Index = (int)boneId2;

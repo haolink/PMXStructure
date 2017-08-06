@@ -85,7 +85,7 @@ namespace PMXStructure.PMXClasses.Parts
             { //PMD format
                 this.Deform = PMXVertexDeformBDEF2.DeformFromPMDFile(this.Model, this, br);
 
-                this.OutlineMagnification = ((br.ReadByte() == 0) ? 0.0f : 1.0f);
+                this.OutlineMagnification = ((br.ReadByte() == 0) ? 1.0f : 0.0f);
             }
         }
 
