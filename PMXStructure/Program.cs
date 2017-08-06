@@ -102,7 +102,7 @@ namespace PMXStructure
 
             /*try
             {*/
-                foreach (string file in inputFiles) 
+            /*    foreach (string file in inputFiles) 
                 {
                     string fn = Path.GetFileNameWithoutExtension(file);
                     Console.Write(fn + " - ");
@@ -123,7 +123,20 @@ namespace PMXStructure
                 Console.WriteLine(ex.Message);
             }*/
 
-            md = new PMXModel();
+            //WriteTestModel();
+
+            md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
+
+            md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");
+
+            //Console.WriteLine(md.Materials.Count);
+
+            Console.ReadLine();
+        }
+
+        private static void WriteTestModel()
+        {
+            PMXModel md = new PMXModel();
             md.NameEN = "Cube";
             md.NameJP = "Cube";
             md.DescriptionEN = "Cube Desc";
@@ -139,7 +152,7 @@ namespace PMXStructure
 
             md.Bones.Add(bn);
 
-            PMXVector3[,] vertices = new PMXVector3[8,3]
+            PMXVector3[,] vertices = new PMXVector3[8, 3]
             {
                 { new PMXVector3(-5.0f,  0.0f, -5.0f), new PMXVector3(-1.0f, -1.0f, -1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
                 { new PMXVector3(-5.0f,  10.0f, -5.0f), new PMXVector3(-1.0f,  1.0f, -1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
@@ -151,13 +164,13 @@ namespace PMXStructure
                 { new PMXVector3( 5.0f,  10.0f,  5.0f), new PMXVector3( 1.0f,  1.0f,  1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
             };
 
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 PMXVertex vtx = new PMXVertex(md);
                 vtx.Position = vertices[i, 0];
                 vtx.Normals = vertices[i, 1];
                 vtx.UV = new PMXVector2(vertices[i, 2].X, vertices[i, 2].Y);
-                
+
                 md.Vertices.Add(vtx);
             }
 
@@ -179,7 +192,7 @@ namespace PMXStructure
                 { 4, 6, 5 }, { 6, 7, 5 }
             };
 
-            for(int i = 0; i < 12; i++)
+            for (int i = 0; i < 12; i++)
             {
                 PMXTriangle mxt = new PMXTriangle(md, md.Vertices[triangleBases[i, 0]], md.Vertices[triangleBases[i, 1]], md.Vertices[triangleBases[i, 2]]);
                 mat.Triangles.Add(mxt);
@@ -190,8 +203,6 @@ namespace PMXStructure
 
             md.NormalizeNormalVectors();
             md.SaveToFile(@"D:\mmd\cube.pmx");
-
-            Console.ReadLine();
         }
     }
 }

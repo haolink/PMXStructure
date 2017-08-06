@@ -57,7 +57,8 @@ namespace PMXStructure.PMXClasses.Parts
         public PMXSphereMode SphereMode { get; set; }
         public bool StandardToon { get; set; }
 
-        public byte StandardToonIndex { get; set; }
+        public sbyte StandardToonIndex { get; set; }
+        private sbyte _pmdToonIndex; //Import only
         public string NonStandardToonTexture { get; set; }
 
         public string Comment { get; set; }
@@ -119,41 +120,93 @@ namespace PMXStructure.PMXClasses.Parts
                 textures = new string[0];
             }
 
-            this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
-            this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
+            int triangleVerticesCount;
 
-            this.Diffuse = PMXColorRGB.LoadFromStreamStatic(br);
-            this.Alpha = br.ReadSingle();
-            this.Specular = PMXColorRGB.LoadFromStreamStatic(br);
-            this.SpecularFactor = br.ReadSingle();
-            this.Ambient = PMXColorRGB.LoadFromStreamStatic(br);
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX format
+                this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
+                this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            byte flags = br.ReadByte();
+                this.Diffuse = PMXColorRGB.LoadFromStreamStatic(br);
+                this.Alpha = br.ReadSingle();
+                this.Specular = PMXColorRGB.LoadFromStreamStatic(br);
+                this.SpecularFactor = br.ReadSingle();
+                this.Ambient = PMXColorRGB.LoadFromStreamStatic(br);
 
-            this.EdgeColor = PMXColorRGBA.LoadFromStreamStatic(br);
-            this.EdgeSize = br.ReadSingle();
+                byte flags = br.ReadByte();
+                //Flag parsing
+                //1st bit = double sided
+                this.DoubleSided = ((flags & PMXMaterial.MATERIAL_DOUBLE_SIDED) != 0);
+                //2nd bit = ground shadow
+                this.GroundShadow = ((flags & PMXMaterial.MATERIAL_GROUND_SHADOW) != 0);
+                //3rd bit - self shadow
+                this.SelfShadow = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW) != 0);
+                //4th bit - self shadow+
+                this.SelfShadowPlus = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW_PLUS) != 0);
+                //5th bit - has edge line
+                this.EdgeEnabled = ((flags & PMXMaterial.MATERIAL_EDGE_ENABLED) != 0);
+                //6th bit - shine with vertex colour
+                this.VertexColor = ((flags & PMXMaterial.MATERIAL_VERTEX_COLOR) != 0);
 
-            int diffIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
-            this.DiffuseTexture = this.GetTextureFromIndex(diffIndex, textures);            
+                //7th and 8bit - Tri, Point or Line shadow
+                int shadowType = ((flags & 0xC0) >> 6);
+                this.GroundShadowType = (PMXGroundShadowType)shadowType;
 
-            int sphereIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
-            this.SphereTexture = this.GetTextureFromIndex(sphereIndex, textures);
+                this.EdgeColor = PMXColorRGBA.LoadFromStreamStatic(br);
+                this.EdgeSize = br.ReadSingle();
 
-            this.SphereMode = (PMXSphereMode)(int)(br.ReadByte());
+                int diffIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
+                this.DiffuseTexture = this.GetTextureFromIndex(diffIndex, textures);
 
-            this.StandardToon = (br.ReadByte() == 1);
-            if(this.StandardToon)
-            {
-                this.StandardToonIndex = br.ReadByte();
+                int sphereIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
+                this.SphereTexture = this.GetTextureFromIndex(sphereIndex, textures);
+
+                this.SphereMode = (PMXSphereMode)(int)(br.ReadByte());
+
+                this.StandardToon = (br.ReadByte() == 1);
+                if (this.StandardToon)
+                {
+                    this.StandardToonIndex = br.ReadSByte();
+                }
+                else
+                {
+                    int toonTexIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
+                    this.NonStandardToonTexture = this.GetTextureFromIndex(toonTexIndex, textures);
+                }
+
+                this.Comment = PMXParser.ReadString(br, importSettings.TextEncoding);
+                triangleVerticesCount = br.ReadInt32();
             }
             else
-            {
-                int toonTexIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.TextureIndexLength);
-                this.NonStandardToonTexture = this.GetTextureFromIndex(toonTexIndex, textures);
+            { //PMD format
+                this.Diffuse = PMXColorRGB.LoadFromStreamStatic(br);
+                this.Alpha = br.ReadSingle();
+                this.SpecularFactor = br.ReadSingle();
+                this.Specular = PMXColorRGB.LoadFromStreamStatic(br);
+                this.Ambient = PMXColorRGB.LoadFromStreamStatic(br);
+
+                this._pmdToonIndex = br.ReadSByte();
+
+                this.EdgeEnabled = (br.ReadByte() == 1);
+
+                triangleVerticesCount = br.ReadInt32();
+
+                string textureFile = PMDParser.ReadString(br, 20, importSettings.TextEncoding);
+
+                if(textureFile != null)
+                {
+                    string[] textureRefs = textureFile.Split(new char[] { '*' }, 2, StringSplitOptions.RemoveEmptyEntries);
+
+                    this.DiffuseTexture = textureRefs[0];
+
+                    if(textureRefs.Length > 1)
+                    {
+                        this.SphereTexture = textureRefs[1];
+                    }
+                }                
             }
 
-            this.Comment = PMXParser.ReadString(br, importSettings.TextEncoding);
-            int triangleVerticesCount = br.ReadInt32();
+            
 
             if(triangleVerticesCount % 3 != 0)
             {
@@ -171,25 +224,7 @@ namespace PMXStructure.PMXClasses.Parts
 
                 this.Triangles = triangles.GetRange(0, triangleCount);
                 triangles.RemoveRange(0, triangleCount);
-            }
-
-            //Flag parsing
-            //1st bit = double sided
-            this.DoubleSided = ((flags & PMXMaterial.MATERIAL_DOUBLE_SIDED) != 0);
-            //2nd bit = ground shadow
-            this.GroundShadow = ((flags & PMXMaterial.MATERIAL_GROUND_SHADOW) != 0);
-            //3rd bit - self shadow
-            this.SelfShadow = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW) != 0);
-            //4th bit - self shadow+
-            this.SelfShadowPlus = ((flags & PMXMaterial.MATERIAL_SELF_SHADOW_PLUS) != 0);
-            //5th bit - has edge line
-            this.EdgeEnabled = ((flags & PMXMaterial.MATERIAL_EDGE_ENABLED) != 0);
-            //6th bit - shine with vertex colour
-            this.VertexColor = ((flags & PMXMaterial.MATERIAL_VERTEX_COLOR) != 0);
-
-            //7th and 8bit - Tri, Point or Line shadow
-            int shadowType = ((flags & 0xC0) >> 6);
-            this.GroundShadowType = (PMXGroundShadowType)shadowType;
+            }            
         }
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
@@ -302,6 +337,38 @@ namespace PMXStructure.PMXClasses.Parts
                 throw new InvalidDataException("Material not a member of model!");
             }
             return index;
+        }
+
+        /// <summary>
+        /// Assigns toon texture for PMD files.
+        /// </summary>
+        /// <param name="defaultToons"></param>
+        /// <param name="thisModelToons"></param>
+        public void AssignToonForPMD(string[] defaultToons, string[] thisModelToons)
+        {
+            if(this._pmdToonIndex < 0 || this._pmdToonIndex >= 10)
+            {
+                this.StandardToon = true;
+                this.StandardToonIndex = -1;
+                return;
+            }
+
+            string toonName = thisModelToons[this._pmdToonIndex];
+            this._pmdToonIndex = -1;
+
+            string toonNameCL = toonName.ToUpperInvariant();
+
+            int index = Array.IndexOf<string>(defaultToons, toonNameCL);
+            if(index < 0)
+            {
+                this.StandardToon = false;
+                this.NonStandardToonTexture = toonName;
+            }
+            else
+            {
+                this.StandardToon = true;
+                this.StandardToonIndex = (sbyte)index;
+            }
         }
     }
 }

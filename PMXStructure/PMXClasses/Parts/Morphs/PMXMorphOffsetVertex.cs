@@ -25,7 +25,16 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            int vtxIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+            int vtxIndex;
+
+            if(importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX
+                vtxIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+            }
+            else
+            { //PMD
+                vtxIndex = br.ReadInt32();
+            }
 
             this.Vertex = this.Model.Vertices[vtxIndex];
             this.Translation = PMXVector3.LoadFromStreamStatic(br);

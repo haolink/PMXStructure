@@ -17,7 +17,7 @@ namespace PMXStructure.PMXClasses
         public string DescriptionJP { get; set; }
         public string DescriptionEN { get; set; }
 
-        public List<PMXVertex> Vertices { get; private set;  }
+        public List<PMXVertex> Vertices { get; private set; }
         public List<PMXMaterial> Materials { get; private set; }
         public List<PMXBone> Bones { get; private set; }
         public List<PMXMorph> Morphs { get; private set; }
@@ -43,13 +43,13 @@ namespace PMXStructure.PMXClasses
         public static PMXModel LoadFromPMXFile(string pmxFile)
         {
             FileStream fs = new FileStream(pmxFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-            
+
             byte[] buffer = new byte[3];
             fs.Read(buffer, 0, 3);
             string head = Encoding.ASCII.GetString(buffer);
             fs.Seek(1, SeekOrigin.Current);
 
-            if(head != "PMX")
+            if (head != "PMX")
             {
                 throw new Exception("Not a PMX file!");
             }
@@ -57,13 +57,13 @@ namespace PMXStructure.PMXClasses
             BinaryReader br = new BinaryReader(fs);
 
             float PMXVersion = br.ReadSingle();
-            if(PMXVersion != 2.0f && PMXVersion != 2.1f)
+            if (PMXVersion != 2.0f && PMXVersion != 2.1f)
             {
                 throw new Exception("Unsupported PMX Version!");
             }
 
             byte flags = br.ReadByte();
-            if(flags != 8)
+            if (flags != 8)
             {
                 throw new Exception("Invalid PMX bytes version!");
             }
@@ -72,7 +72,7 @@ namespace PMXStructure.PMXClasses
             List<PMXBasePart> allParts = new List<PMXBasePart>();
 
             byte text_encoding = br.ReadByte();
-            settings.TextEncoding = 
+            settings.TextEncoding =
                 (text_encoding == 1 ? Encoding.UTF8 :
                 (text_encoding == 0 ? Encoding.Unicode : Encoding.GetEncoding(932)));
 
@@ -96,7 +96,7 @@ namespace PMXStructure.PMXClasses
             //Vertices
             uint vertexCount = br.ReadUInt32();
 
-            for(int i = 0; i < vertexCount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 PMXVertex v = new PMXVertex(md);
                 v.LoadFromStream(br, settings);
@@ -107,7 +107,7 @@ namespace PMXStructure.PMXClasses
             //Triangles
             uint vertexRefCount = br.ReadUInt32();
 
-            if(vertexRefCount % 3 != 0)
+            if (vertexRefCount % 3 != 0)
             {
                 throw new Exception("Invalid triangle count!");
             }
@@ -126,16 +126,16 @@ namespace PMXStructure.PMXClasses
             //Textures
             uint textureCount = br.ReadUInt32();
 
-            List<string> importTextures = new List<string>();        
+            List<string> importTextures = new List<string>();
 
             for (int i = 0; i < textureCount; i++)
             {
                 string tex = PMXParser.ReadString(br, settings.TextEncoding);
-                importTextures.Add(tex);                
+                importTextures.Add(tex);
             }
             string[] textures = importTextures.ToArray();
 
-            //Textures
+            //Materials
             uint materialCount = br.ReadUInt32();
 
             for (int i = 0; i < materialCount; i++)
@@ -146,7 +146,7 @@ namespace PMXStructure.PMXClasses
                 allParts.Add(mt);
             }
 
-            if(importTriangles.Count > 0)
+            if (importTriangles.Count > 0)
             {
                 throw new InvalidDataException("Model materials don't cover all triangles!");
             }
@@ -208,11 +208,11 @@ namespace PMXStructure.PMXClasses
             }
 
             br.BaseStream.Close();
-            
+
             br = null;
             fs = null;
 
-            foreach(PMXBasePart part in allParts)
+            foreach (PMXBasePart part in allParts)
             {
                 part.FinaliseAfterImport();
             }
@@ -227,11 +227,11 @@ namespace PMXStructure.PMXClasses
         /// <returns></returns>
         private byte DetermineRequiredBitLength(int itemCount)
         {
-            if(itemCount < sbyte.MaxValue)
+            if (itemCount < sbyte.MaxValue)
             {
                 return 1;
             }
-            if(itemCount < ushort.MaxValue - 1) //Very strange logic!
+            if (itemCount < ushort.MaxValue - 1) //Very strange logic!
             {
                 return 2;
             }
@@ -245,12 +245,12 @@ namespace PMXStructure.PMXClasses
         /// <param name="verifyAdd"></param>
         private void AddToListIfRequired(List<string> strings, string verifyAdd)
         {
-            if(verifyAdd == null)
+            if (verifyAdd == null)
             {
                 return;
             }
 
-            if(!strings.Contains(verifyAdd))
+            if (!strings.Contains(verifyAdd))
             {
                 strings.Add(verifyAdd);
             }
@@ -261,7 +261,7 @@ namespace PMXStructure.PMXClasses
         /// </summary>
         /// <param name="stream"></param>
         public void SaveToStream(Stream stream)
-        {            
+        {
             List<string> requiredTextureList = new List<string>(); //List of textures to export
             int triangleCount = 0;
             foreach (PMXMaterial mat in this.Materials)
@@ -269,7 +269,7 @@ namespace PMXStructure.PMXClasses
                 this.AddToListIfRequired(requiredTextureList, mat.DiffuseTexture);
                 this.AddToListIfRequired(requiredTextureList, mat.SphereTexture);
 
-                if(!mat.StandardToon)
+                if (!mat.StandardToon)
                 {
                     this.AddToListIfRequired(requiredTextureList, mat.NonStandardToonTexture);
                 }
@@ -278,11 +278,11 @@ namespace PMXStructure.PMXClasses
             }
 
             int maxAddUV = 0;
-            foreach(PMXVertex v in this.Vertices)
+            foreach (PMXVertex v in this.Vertices)
             {
                 maxAddUV = Math.Max(v.AddedUVs.Count, maxAddUV);
             }
-            if(maxAddUV > 4)
+            if (maxAddUV > 4)
             {
                 throw new InvalidDataException("Maximum Add UV data is 4");
             }
@@ -354,9 +354,9 @@ namespace PMXStructure.PMXClasses
             //Triangles
             bw.Write((Int32)(triangleCount * 3));
 
-            foreach(PMXMaterial mat in this.Materials)
+            foreach (PMXMaterial mat in this.Materials)
             {
-                foreach(PMXTriangle t in mat.Triangles)
+                foreach (PMXTriangle t in mat.Triangles)
                 {
                     t.WriteToStream(bw, settings);
                 }
@@ -366,7 +366,7 @@ namespace PMXStructure.PMXClasses
             string[] textures = requiredTextureList.ToArray();
             bw.Write((Int32)textures.Length);
 
-            foreach(string textureFile in textures)
+            foreach (string textureFile in textures)
             {
                 PMXParser.WriteString(bw, settings.TextEncoding, textureFile);
             }
@@ -374,7 +374,7 @@ namespace PMXStructure.PMXClasses
             //Materials
             bw.Write((Int32)this.Materials.Count);
 
-            foreach(PMXMaterial mat in this.Materials)
+            foreach (PMXMaterial mat in this.Materials)
             {
                 mat.WriteToStream(bw, settings, textures);
             }
@@ -421,7 +421,7 @@ namespace PMXStructure.PMXClasses
             //Reset triangles
             foreach (PMXVertex v in this.Vertices)
             {
-                v.RemoveIndexForExport(settings);                
+                v.RemoveIndexForExport(settings);
             }
 
 
@@ -439,12 +439,12 @@ namespace PMXStructure.PMXClasses
         /// </summary>
         public void NormalizeNormalVectors()
         {
-            foreach(PMXVertex v in this.Vertices)
+            foreach (PMXVertex v in this.Vertices)
             {
                 v.NormalizeNormalVector();
             }
         }
-        
+
 
 
         /// <summary>
@@ -460,5 +460,272 @@ namespace PMXStructure.PMXClasses
             fs.Close();
             fs = null;
         }
-    }    
+
+        public static PMXModel LoadFromPMDFile(string pmdFile)
+        {
+            FileStream fs = new FileStream(pmdFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            byte[] buffer = new byte[3];
+            fs.Read(buffer, 0, 3);
+            string head = Encoding.ASCII.GetString(buffer);
+
+            if (head != "Pmd")
+            {
+                throw new Exception("Not a PMD file!");
+            }
+
+            BinaryReader br = new BinaryReader(fs);
+
+            float PMDVersion = br.ReadSingle();
+            if (PMDVersion != 1.0f)
+            {
+                throw new Exception("Unsupported PMD Version!");
+            }
+
+            MMDImportSettings settings = new MMDImportSettings(MMDImportSettings.ModelFormat.PMD);
+            List<PMXBasePart> allParts = new List<PMXBasePart>();
+
+            settings.TextEncoding = Encoding.GetEncoding(932);
+            settings.ExtendedUV = 0;
+
+            PMXModel md = new PMXModel();
+
+            md.NameJP = PMDParser.ReadString(br, 20, settings.TextEncoding);
+            md.DescriptionJP = PMDParser.ReadString(br, 256, settings.TextEncoding);
+
+            //Vertices
+            uint vertexCount = br.ReadUInt32();
+
+            for (int i = 0; i < vertexCount; i++)
+            {
+                PMXVertex v = new PMXVertex(md);
+                v.LoadFromStream(br, settings);
+                md.Vertices.Add(v);
+                allParts.Add(v);
+            }
+
+            //Triangles
+            uint vertexRefCount = br.ReadUInt32();
+
+            if (vertexRefCount % 3 != 0)
+            {
+                throw new Exception("Invalid triangle count!");
+            }
+
+            uint triangleCount = vertexRefCount / 3;
+            List<PMXTriangle> importTriangles = new List<PMXTriangle>();
+
+            for (int i = 0; i < triangleCount; i++)
+            {
+                PMXTriangle t = new PMXTriangle(md);
+                t.LoadFromStream(br, settings);
+                importTriangles.Add(t);
+                allParts.Add(t);
+            }
+
+            //Materials
+            uint materialCount = br.ReadUInt32();
+
+            for (int i = 0; i < materialCount; i++)
+            {
+                PMXMaterial mt = new PMXMaterial(md);
+                mt.LoadFromStream(br, settings, null, importTriangles);
+                md.Materials.Add(mt);
+
+                mt.NameJP = "Material" + (i + 1).ToString(); //Initialise default names
+                mt.NameEN = "Material" + (i + 1).ToString(); //Initialise default names
+
+                allParts.Add(mt);
+            }
+
+            //Bones
+            uint boneCount = (uint)br.ReadUInt16();
+            
+            for (int i = 0; i < boneCount; i++)
+            {
+                PMXBone bn = new PMXBone(md);
+                bn.LoadFromStream(br, settings);
+                md.Bones.Add(bn);
+                allParts.Add(bn);
+            }
+
+            //PMD IKs - will be handled internally
+            uint ikCount = (uint)br.ReadUInt16();
+            for (int i = 0; i < ikCount; i++)
+            {
+                int boneId = br.ReadUInt16();
+                PMXBone bn = md.Bones[boneId];
+                bn.IK = new PMXIK(md, bn);
+                bn.IK.LoadFromStream(br, settings);                
+            }
+
+            //Morphs
+            uint mCount = (uint)br.ReadUInt16();
+            for (int i = 0; i < mCount; i++)
+            {
+                PMXMorph mrph = new PMXMorph(md);
+                mrph.LoadFromStream(br, settings);
+                md.Morphs.Add(mrph);
+                allParts.Add(mrph);
+            }
+
+            //Display groups - kinda insanely set up for PMD
+
+            //Initialising root slot manually            
+            md.DisplaySlots[0].References.Add(md.Bones[0]);
+            allParts.Add(md.DisplaySlots[0]);
+
+            //Exp slot is initialised differently (cause why not?)
+            uint miCount = (uint)br.ReadByte();
+            for (int i = 0; i < miCount; i++)
+            {
+                int morphId = br.ReadUInt16();
+                md.DisplaySlots[1].References.Add(md.Morphs[morphId]);
+            }
+            allParts.Add(md.DisplaySlots[1]);
+
+            //Display slots.. guess.. work completely different as well - first of all: Let's gather the names!
+            uint nameCount = (uint)br.ReadByte();
+            for (int i = 0; i < nameCount; i++)
+            {
+                PMXDisplaySlot ds = new PMXDisplaySlot(md);
+                ds.NameJP = PMDParser.ReadString(br, 50, settings.TextEncoding);
+                md.DisplaySlots.Add(ds);
+                allParts.Add(ds);
+            }
+
+            //We've got the names - now let's put the bones in
+            uint boneIndexCount = (uint)br.ReadUInt32();
+            for (int i = 0; i < boneIndexCount; i++)
+            {
+                ushort bI = br.ReadUInt16();
+                byte slot = br.ReadByte();
+
+                md.DisplaySlots[slot + 1].References.Add(md.Bones[bI]);                
+            }
+
+            //Those were the display slots!
+
+            //Does the model have English names?
+            bool hasEnglishNames = false;
+            if (br.BaseStream.Position < br.BaseStream.Length) //Not EOF yet
+            {
+                hasEnglishNames = (br.ReadByte() == 1);
+            }
+
+            if (hasEnglishNames) //Read English names
+            {
+                md.NameEN = PMDParser.ReadString(br, 20, settings.TextEncoding);
+                md.DescriptionEN = PMDParser.ReadString(br, 256, settings.TextEncoding);
+                foreach(PMXBone bn in md.Bones)
+                {
+                    bn.NameEN = PMDParser.ReadString(br, 20, settings.TextEncoding);
+                }
+                bool firstMorph = true;
+                foreach (PMXMorph mrph in md.Morphs)
+                {                    
+                    if(firstMorph && mrph.NameJP == "base")
+                    {
+                        continue;
+                    }
+                    mrph.NameEN = PMDParser.ReadString(br, 20, settings.TextEncoding);
+                    firstMorph = false;
+                }
+                for(int i = 2; i < md.DisplaySlots.Count; i++)
+                {
+                    md.DisplaySlots[i].NameEN = PMDParser.ReadString(br, 50, settings.TextEncoding);
+                }
+            }
+            else //At least initialise them by using JP names
+            {
+                md.NameEN = md.NameJP;
+                md.DescriptionEN = md.DescriptionJP;
+                foreach (PMXBone bn in md.Bones)
+                {
+                    bn.NameEN = bn.NameJP;
+                }
+                foreach (PMXMorph mrph in md.Morphs)
+                {
+                    mrph.NameEN = mrph.NameJP;
+                }
+                for (int i = 2; i < md.DisplaySlots.Count; i++)
+                {
+                    md.DisplaySlots[i].NameEN = md.DisplaySlots[i].NameJP;
+                }
+            }
+
+            //Are there special toon textures?
+            string[] defaultToons = new string[]
+            {
+                "TOON01.bmp", "TOON02.bmp", "TOON03.bmp", "TOON04.bmp", "TOON05.bmp",
+                "TOON06.bmp", "TOON07.bmp", "TOON08.bmp", "TOON09.bmp", "TOON10.bmp"
+            };
+            string[] thisModelToons = new string[10];
+
+            if (br.BaseStream.Position < br.BaseStream.Length) //Not EOF yet
+            {
+                for(int i = 0; i < 10; i++)
+                {
+                    thisModelToons[i] = PMDParser.ReadString(br, 100, settings.TextEncoding);
+                }
+            }
+            else
+            {
+                Array.Copy(defaultToons, thisModelToons, 10);
+            }
+
+            //Does the PMD file have physics?
+            if (br.BaseStream.Position < br.BaseStream.Length) //Not EOF yet
+            {
+                //Rigid bodies
+                uint rigidBodyCount = br.ReadUInt32();
+
+                for (int i = 0; i < rigidBodyCount; i++)
+                {
+                    PMXRigidBody rb = new PMXRigidBody(md);
+                    rb.LoadFromStream(br, settings);
+                    md.RigidBodies.Add(rb);
+                    allParts.Add(rb);
+                }
+
+                //Joints
+                uint jointsCount = br.ReadUInt32();
+
+                for (int i = 0; i < jointsCount; i++)
+                {
+                    PMXJoint jt = new PMXJoint(md);
+                    jt.LoadFromStream(br, settings);
+                    md.Joints.Add(jt);
+                    allParts.Add(jt);
+                }
+            }
+
+            foreach (PMXBasePart part in allParts)
+            {
+                part.FinaliseAfterImport();
+            }
+
+            foreach (PMXMaterial mt in md.Materials)
+            {
+                mt.AssignToonForPMD(defaultToons, thisModelToons);
+            }
+
+            foreach (PMXBone bn in md.Bones)
+            {
+                bn.ParsePMDTwist();
+                bn.CreateLocalCoodinateAxisForPMD();
+            }
+
+            if (md.Morphs[0].NameJP == "base")
+            {
+                md.Morphs.RemoveAt(0);
+            }
+
+            br = null;
+            fs.Close();
+            fs = null;
+
+            return md;
+        }
+    }
 }

@@ -29,9 +29,20 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            int index1 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
-            int index2 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
-            int index3 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+            int index1, index2, index3;
+
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX
+                index1 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+                index2 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+                index3 = PMXParser.ReadIndex(br, importSettings.BitSettings.VertexIndexLength);
+            } 
+            else
+            { //PMD
+                index1 = (int)br.ReadUInt16();
+                index2 = (int)br.ReadUInt16();
+                index3 = (int)br.ReadUInt16();
+            }            
 
             this.Vertex1 = this.Model.Vertices[index1];
             this.Vertex2 = this.Model.Vertices[index2];

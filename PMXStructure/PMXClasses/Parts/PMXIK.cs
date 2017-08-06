@@ -25,12 +25,26 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            this.boneTargetIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
-            this.Loop = br.ReadInt32();
-            this.RadianLimit = br.ReadSingle();
+            int linkCount;
 
-            int linkCount = br.ReadInt32();
-            for(int i = 0; i < linkCount; i++)
+            if(importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX IK
+                this.boneTargetIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                this.Loop = br.ReadInt32();
+                this.RadianLimit = br.ReadSingle();
+
+                linkCount = br.ReadInt32();                
+            }
+            else
+            { //PMD IK
+                this.boneTargetIndex = br.ReadUInt16();
+                linkCount = (int)br.ReadByte();
+
+                this.Loop = br.ReadUInt16();
+                this.RadianLimit = br.ReadSingle();                
+            }
+
+            for (int i = 0; i < linkCount; i++)
             {
                 PMXIKLink link = new PMXIKLink(this.Model, this);
                 link.LoadFromStream(br, importSettings);

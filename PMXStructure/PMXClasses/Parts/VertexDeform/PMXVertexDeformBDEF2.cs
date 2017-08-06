@@ -37,5 +37,26 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
 
             bw.Write(this.Bone1Weight);
         }
+
+        public static PMXBaseDeform DeformFromPMDFile(PMXModel model, PMXVertex vertex, BinaryReader br)
+        {
+            ushort boneId1 = br.ReadUInt16();
+            ushort boneId2 = br.ReadUInt16();
+            byte weight = br.ReadByte();
+
+            if(weight >= 100)
+            { //BDEF1
+                return PMXVertexDeformBDEF1.DeformFromPMDFile(model, vertex, boneId1);                
+            } //BDEF2
+            else
+            {
+                PMXVertexDeformBDEF2 res = new PMXVertexDeformBDEF2(model, vertex);
+                res.bone1Index = (int)boneId1;
+                res.bone2Index = (int)boneId2;
+                res.Bone1Weight = (float)weight / 100.0f;
+                return res;
+            }
+            
+        }
     }
 }

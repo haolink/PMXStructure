@@ -26,14 +26,21 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            this.boneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+            if(importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX format
+                this.boneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
 
-            this.HasLimits = (br.ReadByte() == 1);
-            if(this.HasLimits)
-            {
-                this.Minimum = PMXVector3.LoadFromStreamStatic(br);
-                this.Maximum = PMXVector3.LoadFromStreamStatic(br);
+                this.HasLimits = (br.ReadByte() == 1);
+                if (this.HasLimits)
+                {
+                    this.Minimum = PMXVector3.LoadFromStreamStatic(br);
+                    this.Maximum = PMXVector3.LoadFromStreamStatic(br);
+                }
             }
+            else
+            {
+                this.boneIndex = br.ReadUInt16();                
+            }            
         }
 
         public override void FinaliseAfterImport()

@@ -43,40 +43,50 @@ namespace PMXStructure.PMXClasses.Parts
         }
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
-        {            
+        {
             this.Position = PMXVector3.LoadFromStreamStatic(br);
             this.Normals = PMXVector3.LoadFromStreamStatic(br);
-            this.UV = PMXVector2.LoadFromStreamStatic(br);            
+            this.UV = PMXVector2.LoadFromStreamStatic(br);
 
-            for (int i = 0; i < importSettings.ExtendedUV; i++)
-            {
-                this.AddedUVs.Add(PMXQuaternion.LoadFromStreamStatic(br));                
-            }
-
-            byte deformType = br.ReadByte();
             
-            switch(deformType)
-            {
-                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF1:
-                    this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
-                    break;
-                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF2:
-                    this.Deform = new PMXVertexDeformBDEF2(this.Model, this);
-                    break;
-                case PMXBaseDeform.DEFORM_IDENTIFY_BDEF4:
-                    this.Deform = new PMXVertexDeformBDEF4(this.Model, this);
-                    break;
-                case PMXBaseDeform.DEFORM_IDENTIFY_SDEF:
-                    this.Deform = new PMXVertexDeformSDEF(this.Model, this);
-                    break;
-                case PMXBaseDeform.DEFORM_IDENTIFY_QDEF:
-                default:
-                    this.Deform = new PMXVertexDeformQDEF(this.Model, this);
-                    break;
-            }
-            this.Deform.LoadFromStream(br, importSettings);
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX format
+                for (int i = 0; i < importSettings.ExtendedUV; i++)
+                {
+                    this.AddedUVs.Add(PMXQuaternion.LoadFromStreamStatic(br));
+                }
 
-            this.OutlineMagnification = br.ReadSingle();
+                byte deformType = br.ReadByte();
+
+                switch (deformType)
+                {
+                    case PMXBaseDeform.DEFORM_IDENTIFY_BDEF1:
+                        this.Deform = new PMXVertexDeformBDEF1(this.Model, this);
+                        break;
+                    case PMXBaseDeform.DEFORM_IDENTIFY_BDEF2:
+                        this.Deform = new PMXVertexDeformBDEF2(this.Model, this);
+                        break;
+                    case PMXBaseDeform.DEFORM_IDENTIFY_BDEF4:
+                        this.Deform = new PMXVertexDeformBDEF4(this.Model, this);
+                        break;
+                    case PMXBaseDeform.DEFORM_IDENTIFY_SDEF:
+                        this.Deform = new PMXVertexDeformSDEF(this.Model, this);
+                        break;
+                    case PMXBaseDeform.DEFORM_IDENTIFY_QDEF:
+                    default:
+                        this.Deform = new PMXVertexDeformQDEF(this.Model, this);
+                        break;
+                }
+                this.Deform.LoadFromStream(br, importSettings);
+
+                this.OutlineMagnification = br.ReadSingle();
+            }
+            else
+            { //PMD format
+                this.Deform = PMXVertexDeformBDEF2.DeformFromPMDFile(this.Model, this, br);
+
+                this.OutlineMagnification = ((br.ReadByte() == 0) ? 0.0f : 1.0f);
+            }
         }
 
         private static int cnt = 0;
@@ -143,7 +153,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// </summary>
         public void NormalizeNormalVector()
         {
-            this.Normals.Normalize();
+            this.Normals = this.Normals.Normalize();
         }
 
         /// <summary>

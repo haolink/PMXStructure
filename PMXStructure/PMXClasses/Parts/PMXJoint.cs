@@ -52,16 +52,32 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
-            this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
+            int rigidBodyIndexA, rigidBodyIndexB;
 
-            this.Type = (JointType)(int)br.ReadByte();
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            {
+                this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
+                this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            int rigidBodyIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.RigidBodyIndexLength);
-            this.RigidBodyA = this.Model.RigidBodies[rigidBodyIndex];
+                this.Type = (JointType)(int)br.ReadByte();
 
-            rigidBodyIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.RigidBodyIndexLength);
-            this.RigidBodyB = this.Model.RigidBodies[rigidBodyIndex];
+                rigidBodyIndexA = PMXParser.ReadIndex(br, importSettings.BitSettings.RigidBodyIndexLength);
+                rigidBodyIndexB = PMXParser.ReadIndex(br, importSettings.BitSettings.RigidBodyIndexLength);
+            }
+            else
+            {
+                this.NameJP = PMDParser.ReadString(br, 20, importSettings.TextEncoding);
+                this.NameEN = this.NameJP;
+
+                this.Type = JointType.SpringSixDOF;
+
+                rigidBodyIndexA = br.ReadInt32();
+                rigidBodyIndexB = br.ReadInt32();
+            }
+            
+
+            this.RigidBodyA = this.Model.RigidBodies[rigidBodyIndexA];
+            this.RigidBodyB = this.Model.RigidBodies[rigidBodyIndexB];
 
             this.Position = PMXVector3.LoadFromStreamStatic(br);
             this.Rotation = PMXVector3.LoadFromStreamStatic(br);

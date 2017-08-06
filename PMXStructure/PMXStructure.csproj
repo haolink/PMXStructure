@@ -41,6 +41,7 @@
     <Compile Include="PMXClasses\General\PMXVector2.cs" />
     <Compile Include="PMXClasses\General\PMXVector3.cs" />
     <Compile Include="PMXClasses\Helpers\MMDImportSettings.cs" />
+    <Compile Include="PMXClasses\Helpers\PMDParser.cs" />
     <Compile Include="PMXClasses\Helpers\PMXBitLength.cs" />
     <Compile Include="PMXClasses\Helpers\PMXExportSettings.cs" />
     <Compile Include="PMXClasses\Helpers\PMXParser.cs" />

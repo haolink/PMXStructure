@@ -30,5 +30,12 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             bw.Write(this.deformIdentifier);
             PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone1, exportSettings));
         }
+
+        public static PMXVertexDeformBDEF1 DeformFromPMDFile(PMXModel model, PMXVertex vertex, ushort boneId)
+        {
+            PMXVertexDeformBDEF1 res = new PMXVertexDeformBDEF1(model, vertex);
+            res.bone1Index = (int)boneId;
+            return res;
+        }
     }
 }

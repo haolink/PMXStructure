@@ -72,10 +72,22 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
-            this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
+            int boneIndex;
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            {
+                this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
+                this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            int boneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                boneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+            }
+            else
+            {
+                this.NameJP = PMDParser.ReadString(br, 20, importSettings.TextEncoding);
+                this.NameEN = this.NameJP;
+
+                boneIndex = br.ReadInt16();
+            }
+            
             if(boneIndex < 0)
             {
                 this.Bone = null;
@@ -101,6 +113,11 @@ namespace PMXStructure.PMXClasses.Parts
             this.Friction = br.ReadSingle();
 
             this.Type = (BodyType)(int)br.ReadByte();
+
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMD && this.Bone != null)
+            { //PMD location fix
+                this.Position += this.Bone.Position;
+            }
         }
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)

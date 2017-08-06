@@ -23,7 +23,7 @@ namespace PMXStructure.PMXClasses.Parts
         {
             None = 0,
             Brows = 1,
-            Lips = 2,
+            Eyes = 2,
             Mouth = 3,
             Other = 4
         }
@@ -42,19 +42,34 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
         {
-            this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
-            this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
+            int offsets;
+            byte morphType;
 
-            this.Panel = (PanelType)(int)br.ReadByte();
-            byte morphType = br.ReadByte();
+            if(importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX format
+                this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
+                this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            int offsets = br.ReadInt32();
+                this.Panel = (PanelType)(int)br.ReadByte();
+                morphType = br.ReadByte();
 
-            for(int i = 0; i < offsets; i++)
+                offsets = br.ReadInt32();                
+            }
+            else
+            { //PMD format
+                this.NameJP = PMDParser.ReadString(br, 20, importSettings.TextEncoding);
+
+                offsets = br.ReadInt32();
+                this.Panel = (PanelType)(int)br.ReadByte();
+
+                morphType = PMXMorph.MORPH_IDENTIFY_VERTEX;
+            }
+
+            for (int i = 0; i < offsets; i++)
             {
                 PMXMorphOffsetBase mb = null;
 
-                switch(morphType)
+                switch (morphType)
                 {
                     case PMXMorph.MORPH_IDENTIFY_GROUP:
                         mb = new PMXMorphOffsetGroup(this.Model, this);
@@ -84,7 +99,7 @@ namespace PMXStructure.PMXClasses.Parts
                         mb = new PMXMorphOffsetMaterial(this.Model, this);
                         break;
                     default:
-                        throw new InvalidDataException("Unknown morph type " + morphType);                        
+                        throw new InvalidDataException("Unknown morph type " + morphType);
                 }
                 mb.LoadFromStream(br, importSettings);
                 this.Offsets.Add(mb);

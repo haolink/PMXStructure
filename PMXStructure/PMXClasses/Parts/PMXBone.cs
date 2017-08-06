@@ -29,6 +29,16 @@ namespace PMXStructure.PMXClasses.Parts
         public const ushort BONE_IS_AFTER_PHYSICS_DEFORM = 0x1000;
         public const ushort BONE_IS_EXTERNAL_PARENT_DEFORM = 0x2000;
 
+        public const byte PMD_BONE_TYPE_ROTATE = 0;
+        public const byte PMD_BONE_TYPE_ROTATE_MOVE = 1;
+        public const byte PMD_BONE_TYPE_IK = 2;
+        public const byte PMD_BONE_TYPE_IK_CHILD = 4;
+        public const byte PMD_BONE_TYPE_EXTERNAL_ROTATOR = 5;
+        public const byte PMD_BONE_TYPE_IK_TARGET = 6;
+        public const byte PMD_BONE_TYPE_INVISIBLE = 7;
+        public const byte PMD_BONE_TYPE_TWIST = 8;
+        public const byte PMD_BONE_TYPE_TWIST_INVISIBLE = 9;
+
         public string NameJP { get; set; }
         public string NameEN { get; set; }
 
@@ -56,6 +66,7 @@ namespace PMXStructure.PMXClasses.Parts
 
         public bool FixedAxis { get; set; }
         public PMXVector3 AxisLimit { get; set; }
+        private bool _isPMDTwist; //Import of PMD files only
 
         public bool LocalCoordinates { get; set; }
         public PMXVector3 LocalCoordinatesX { get; set; }
@@ -127,84 +138,243 @@ namespace PMXStructure.PMXClasses.Parts
             }
         }
 
-        public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
+        public void LoadFromStream(BinaryReader br, MMDImportSettings importSettings, out int pmdIKIndex)
         {
-            this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
-            this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
+            pmdIKIndex = -1;
 
-            this.Position = PMXVector3.LoadFromStreamStatic(br);
+            if (importSettings.Format == MMDImportSettings.ModelFormat.PMX)
+            { //PMX
+                this.NameJP = PMXParser.ReadString(br, importSettings.TextEncoding);
+                this.NameEN = PMXParser.ReadString(br, importSettings.TextEncoding);
 
-            this.parentIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                this.Position = PMXVector3.LoadFromStreamStatic(br);
 
-            this.Layer = br.ReadInt32();
+                this.parentIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
 
-            short flags = br.ReadInt16();
+                this.Layer = br.ReadInt32();
 
-            this.HasChildBone = ((flags & PMXBone.BONE_TAILPOS_IS_BONE) != 0);
-            if(this.HasChildBone)
+                short flags = br.ReadInt16();
+
+                this.HasChildBone = ((flags & PMXBone.BONE_TAILPOS_IS_BONE) != 0);
+                if (this.HasChildBone)
+                {
+                    this.childBoneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                }
+                else
+                {
+                    this.ChildVector = PMXVector3.LoadFromStreamStatic(br);
+                }
+
+                this.Rotatable = ((flags & PMXBone.BONE_CAN_ROTATE) != 0);
+                this.Translatable = ((flags & PMXBone.BONE_CAN_TRANSLATE) != 0);
+                this.Visible = ((flags & PMXBone.BONE_IS_VISIBLE) != 0);
+                this.Operating = ((flags & PMXBone.BONE_CAN_MANIPULATE) != 0);
+
+                bool extRotation = ((flags & PMXBone.BONE_IS_EXTERNAL_ROTATION) != 0);
+                bool extTranslation = ((flags & PMXBone.BONE_IS_EXTERNAL_TRANSLATION) != 0);
+
+                int rotFlag = 0;
+                if (extRotation)
+                {
+                    rotFlag |= 1;
+                }
+                if (extTranslation)
+                {
+                    rotFlag |= 2;
+                }
+                this.ExternalModificationType = (BoneExternalModificationType)rotFlag;
+                if (this.ExternalModificationType != BoneExternalModificationType.None)
+                {
+                    this.externalBoneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                    this.ExternalBoneEffect = br.ReadSingle();
+                }
+
+                this.FixedAxis = ((flags & PMXBone.BONE_HAS_FIXED_AXIS) != 0);
+                if (this.FixedAxis)
+                {
+                    this.AxisLimit = PMXVector3.LoadFromStreamStatic(br);
+                }
+
+                this.LocalCoordinates = ((flags & PMXBone.BONE_HAS_LOCAL_COORDINATE) != 0);
+                if (this.LocalCoordinates)
+                {
+                    this.LocalCoordinatesX = PMXVector3.LoadFromStreamStatic(br);
+                    this.LocalCoordinatesZ = PMXVector3.LoadFromStreamStatic(br);
+                }
+
+                this.HasExternalParent = ((flags & PMXBone.BONE_IS_EXTERNAL_PARENT_DEFORM) != 0);
+                if (this.HasExternalParent)
+                {
+                    this.ExternalParentKey = br.ReadInt32();
+                }
+
+                this.TransformPhysicsFirst = ((flags & PMXBone.BONE_IS_AFTER_PHYSICS_DEFORM) != 0);
+
+                bool isIKBone = ((flags & PMXBone.BONE_IS_IK) != 0);
+                if (isIKBone)
+                {
+                    PMXIK ikData = new PMXIK(this.Model, this);
+                    ikData.LoadFromStream(br, importSettings);
+                    this.IK = ikData;
+                }
+                else
+                {
+                    this.IK = null;
+                }
+            }
+
+            else
+            { //PMD
+                this.NameJP = PMDParser.ReadString(br, 20, importSettings.TextEncoding);
+                this.parentIndex = br.ReadInt16();
+
+                this.HasChildBone = true;
+                this.childBoneIndex = br.ReadUInt16();
+
+                byte type = br.ReadByte();
+
+                ushort ikIndex = br.ReadUInt16();
+
+                this.Position = PMXVector3.LoadFromStreamStatic(br);
+
+                switch(type)
+                {
+                    case PMD_BONE_TYPE_ROTATE:
+                        //Default
+                        break;
+                    case PMD_BONE_TYPE_ROTATE_MOVE:
+                        this.Translatable = true;
+                        break;
+                    case PMD_BONE_TYPE_IK:
+                        //IK parameters will be initialised later
+                        this.Translatable = true;
+                        break;
+                    case PMD_BONE_TYPE_IK_CHILD:
+                        //PMX doesn't even bother about these                        
+                        break;
+                    case PMD_BONE_TYPE_EXTERNAL_ROTATOR:
+                        this.ExternalModificationType = BoneExternalModificationType.Rotation;
+                        this.externalBoneIndex = (int)ikIndex;
+                        break;
+                    case PMD_BONE_TYPE_IK_TARGET:
+                        //PMX doesn't bother either                        
+                        this.Visible = false;
+                        break;
+                    case PMD_BONE_TYPE_INVISIBLE:
+                        this.Visible = false;
+                        break;
+                    case PMD_BONE_TYPE_TWIST:
+                        //PMX handles these differently
+                        this._isPMDTwist = true;
+                        break;
+                    case PMD_BONE_TYPE_TWIST_INVISIBLE:
+                        //PMX handles these differently
+                        this._isPMDTwist = true;
+                        this.Visible = false;
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parses PMD Twist data if available.
+        /// </summary>
+        public void ParsePMDTwist()
+        {
+            if(!this._isPMDTwist || this.Parent == null)
             {
-                this.childBoneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
+                return;
+            }
+            this._isPMDTwist = false;
+            PMXBone p = this.Parent;
+
+            PMXVector3 targetLocation;
+            if(p.HasChildBone)
+            {
+                if(p.ChildBone == this)
+                {
+                    return;
+                }
+                targetLocation = p.ChildBone.Position;
+            } else
+            {
+                targetLocation = p.Position + p.ChildVector;
+            }
+
+            PMXVector3 direction = targetLocation - this.Position;
+
+            direction = direction.Normalize();
+
+            this.FixedAxis = true;
+            this.AxisLimit = direction;
+        }
+
+        /// <summary>
+        /// Create a local coordinate axis for the current bone.
+        /// </summary>
+        public void CreateLocalCoodinateAxis()
+        {
+            PMXVector3 targetLocation;
+            if (this.HasChildBone)
+            {
+                if (this.ChildBone == this)
+                {
+                    return;
+                }
+                targetLocation = this.ChildBone.Position;
             }
             else
             {
-                this.ChildVector = PMXVector3.LoadFromStreamStatic(br);
+                targetLocation = this.Position + this.ChildVector;
             }
 
-            this.Rotatable = ((flags & PMXBone.BONE_CAN_ROTATE) != 0);
-            this.Translatable = ((flags & PMXBone.BONE_CAN_TRANSLATE) != 0);
-            this.Visible = ((flags & PMXBone.BONE_IS_VISIBLE) != 0);
-            this.Operating = ((flags & PMXBone.BONE_CAN_MANIPULATE) != 0);            
+            PMXVector3 direction = targetLocation - this.Position;
 
-            bool extRotation = ((flags & PMXBone.BONE_IS_EXTERNAL_ROTATION) != 0);
-            bool extTranslation = ((flags & PMXBone.BONE_IS_EXTERNAL_TRANSLATION) != 0);
-
-            int rotFlag = 0;
-            if(extRotation)
+            PMXVector3 zAxis = (new PMXVector3(0, 1, 0)).CrossProduct(direction);
+            if(zAxis.Z > 0)
             {
-                rotFlag |= 1;
-            }
-            if (extTranslation)
-            {
-                rotFlag |= 2;
-            }
-            this.ExternalModificationType = (BoneExternalModificationType)rotFlag;
-            if(this.ExternalModificationType != BoneExternalModificationType.None)
-            {
-                this.externalBoneIndex = PMXParser.ReadIndex(br, importSettings.BitSettings.BoneIndexLength);
-                this.ExternalBoneEffect = br.ReadSingle();
+                zAxis *= -1.0f;
             }
 
-            this.FixedAxis = ((flags & PMXBone.BONE_HAS_FIXED_AXIS) != 0);
-            if (this.FixedAxis)
-            {
-                this.AxisLimit = PMXVector3.LoadFromStreamStatic(br);
-            }
+            /*float dotProduct = direction.DotProduct(zAxis);
+            Console.WriteLine(dotProduct.ToString());*/
 
-            this.LocalCoordinates = ((flags & PMXBone.BONE_HAS_LOCAL_COORDINATE) != 0);
-            if(this.LocalCoordinates)
-            {
-                this.LocalCoordinatesX = PMXVector3.LoadFromStreamStatic(br);
-                this.LocalCoordinatesZ = PMXVector3.LoadFromStreamStatic(br);
-            }
+            this.LocalCoordinates = true;
+            this.LocalCoordinatesX = direction.Normalize();
+            this.LocalCoordinatesZ = zAxis.Normalize();
+        }
 
-            this.HasExternalParent = ((flags & PMXBone.BONE_IS_EXTERNAL_PARENT_DEFORM) != 0);
-            if(this.HasExternalParent)
-            {
-                this.ExternalParentKey = br.ReadInt32();
-            }
+        private static string[] PMDArmBoneNames = new string[]
+        {
+            "右肩", "右腕", "右ひじ", "右手首",
+            "右親指０", "右親指１", "右親指２", "右親指0", "右親指1", "右親指2",
+            "右人指１", "右人指２", "右人指３", "右人指1", "右人指2", "右人指3",
+            "右中指１", "右中指２", "右中指３", "右中指1", "右中指2", "右中指3",
+            "右薬指１", "右薬指２", "右薬指３", "右薬指1", "右薬指2", "右薬指3",
+            "右小指１", "右小指２", "右小指３", "右小指1", "右小指2", "右小指3",
+            "左肩", "左腕", "左ひじ", "左手首",
+            "左親指０", "左親指１", "左親指２", "左親指0", "左親指1", "左親指2",
+            "左人指１", "左人指２", "左人指３", "左人指1", "左人指2", "左人指3",
+            "左中指１", "左中指２", "左中指３", "左中指1", "左中指2", "左中指3",
+            "左薬指１", "左薬指２", "左薬指３", "左薬指1", "左薬指2", "左薬指3",
+            "左小指１", "左小指２", "左小指３", "左小指1", "左小指2", "左小指3"
+        };
 
-            this.TransformPhysicsFirst = ((flags & PMXBone.BONE_IS_AFTER_PHYSICS_DEFORM) != 0);
-
-            bool isIKBone = ((flags & PMXBone.BONE_IS_IK) != 0);
-            if(isIKBone)
+        /// <summary>
+        /// Parses PMD Twist data if available.
+        /// </summary>
+        public void CreateLocalCoodinateAxisForPMD()
+        {
+            if(Array.IndexOf<string>(PMXBone.PMDArmBoneNames, this.NameJP) >= 0)
             {
-                PMXIK ikData = new PMXIK(this.Model, this);
-                ikData.LoadFromStream(br, importSettings);
-                this.IK = ikData;
-            } else
-            {
-                this.IK = null;
+                this.CreateLocalCoodinateAxis();
             }
+        }
+
+        public override void LoadFromStream(BinaryReader br, MMDImportSettings importSettings)
+        {
+            int ignoreIndex;
+            this.LoadFromStream(br, importSettings, out ignoreIndex);
         }
 
         public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
