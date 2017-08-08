@@ -296,10 +296,11 @@ namespace PMXStructure.PMXClasses
             Random rnd = new Random();
             int randomNumber = rnd.Next();
 
-            PMXExportSettings settings = new PMXExportSettings();
+            MMDExportSettings settings = new MMDExportSettings(MMDExportSettings.ModelFormat.PMX);
             settings.Model = this;
             settings.ExportHash = randomNumber;
             settings.ExtendedUV = (byte)maxAddUV;
+
             float version = 2.0f;
 
             foreach (PMXJoint j in this.Joints)
@@ -461,6 +462,11 @@ namespace PMXStructure.PMXClasses
             fs = null;
         }
 
+        /// <summary>
+        /// Loads a model from a PMD file and converts it to PMX internally.
+        /// </summary>
+        /// <param name="pmdFile">PMD file name</param>
+        /// <returns></returns>
         public static PMXModel LoadFromPMDFile(string pmdFile)
         {
             FileStream fs = new FileStream(pmdFile, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -727,6 +733,145 @@ namespace PMXStructure.PMXClasses
             fs = null;
 
             return md;
+        }
+
+        /// <summary>
+        /// Saves to a stream as PMD.
+        /// </summary>
+        /// <param name="fs"></param>
+        public void SaveToStreamPMD(Stream stream)
+        {
+            List<string> requiredToons = new List<string>(); //List of textures to export
+            string[] defaultToons = new string[]
+            {
+                "toon01.bmp", "toon02.bmp", "toon03.bmp", "toon04.bmp", "toon05.bmp",
+                "toon06.bmp", "toon07.bmp", "toon08.bmp", "toon09.bmp", "toon10.bmp"
+            };
+
+            int triangleCount = 0;
+            foreach (PMXMaterial mat in this.Materials)
+            {
+                this.AddToListIfRequired(requiredToons, mat.DiffuseTexture);
+
+                if (mat.StandardToon)
+                {
+                    this.AddToListIfRequired(requiredToons, defaultToons[mat.StandardToonIndex]);
+                }
+                else
+                {
+                    this.AddToListIfRequired(requiredToons, mat.NonStandardToonTexture);
+                }
+
+                triangleCount += mat.Triangles.Count;
+            }
+
+            string[] toonFiles = new string[10];
+            for (int i = 0; i < 10; i++)
+            {
+                if (i < requiredToons.Count)
+                {
+                    toonFiles[i] = requiredToons[i];
+                }
+                else
+                {
+                    toonFiles[i] = defaultToons[i];
+                }
+            }
+
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(ms);
+
+            byte[] magic = Encoding.ASCII.GetBytes("Pmd");
+            stream.Write(magic, 0, 3);
+
+            Random rnd = new Random();
+            int randomNumber = rnd.Next();
+
+            MMDExportSettings settings = new MMDExportSettings(MMDExportSettings.ModelFormat.PMD);
+            settings.Model = this;
+            settings.ExportHash = randomNumber;
+            settings.TextEncoding = Encoding.GetEncoding(932);
+
+            float version = 1.0f;
+            bw.Write(version);
+
+            PMDParser.WriteString(bw, 20, settings.TextEncoding, this.NameJP);
+            PMDParser.WriteString(bw, 256, settings.TextEncoding, this.DescriptionJP);
+
+            //Vertices
+            bw.Write((int)this.Vertices.Count);
+
+            int vtxIndex = 0;
+            foreach (PMXVertex v in this.Vertices)
+            {
+                v.AddIndexForExport(settings, vtxIndex);
+                v.WriteToStream(bw, settings);
+                vtxIndex++;
+            }
+
+            //Triangles
+            bw.Write((Int32)(triangleCount * 3));
+
+            foreach (PMXMaterial mat in this.Materials)
+            {
+                foreach (PMXTriangle t in mat.Triangles)
+                {
+                    t.WriteToStream(bw, settings);
+                }
+            }
+
+            //Materials
+            bw.Write((Int32)this.Materials.Count);
+            foreach (PMXMaterial mat in this.Materials)
+            {
+                mat.WriteToStream(bw, settings, toonFiles, defaultToons);
+            }
+
+            //Bones
+            bw.Write((Int16)this.Bones.Count);
+            List<PMXBone> ikBonesList = new List<PMXBone>();
+            foreach (PMXBone bn in this.Bones)
+            {
+                if (bn.IK != null)
+                {
+                    ikBonesList.Add(bn);
+                }
+            }
+            PMXBone[] ikBones = ikBonesList.ToArray();
+
+            foreach (PMXBone bn in this.Bones)
+            {
+                bn.WriteToStream(bw, settings, ikBones);
+            }
+
+
+            //Vertex restore
+            foreach (PMXVertex v in this.Vertices)
+            {
+                v.RemoveIndexForExport(settings);
+            }
+
+            long length = ms.Position;
+            ms.Seek(0, SeekOrigin.Begin);
+
+            ms.CopyTo(stream);
+
+            ms.Close();
+            ms = null;
+        }
+
+        /// <summary>
+        /// Saves a model to a file name. (PMX export only)
+        /// </summary>
+        /// <param name="filename">PMX file name.</param>
+        public void SaveToPMDFile(string filename)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            this.SaveToStreamPMD(fs);
+
+            fs.Close();
+            fs = null;
         }
     }
 }

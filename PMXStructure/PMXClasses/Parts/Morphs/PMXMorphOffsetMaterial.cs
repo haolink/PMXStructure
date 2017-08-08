@@ -73,7 +73,7 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.ToonTextureFactor = PMXColorRGBA.LoadFromStreamStatic(br);
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             PMXParser.WriteIndex(bw, exportSettings.BitSettings.MaterialIndexLength, PMXMaterial.CheckIndexInModel(this.Material, exportSettings, true));
 

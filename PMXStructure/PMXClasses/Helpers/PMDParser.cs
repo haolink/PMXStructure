@@ -32,5 +32,32 @@ namespace PMXStructure.PMXClasses.Helpers
 
             return res;
         }
+
+        public static void WriteString(BinaryWriter bw, int length, Encoding textEncoding, string str)
+        {
+            if(str == null)
+            {
+                str = "";
+            }
+
+            str = str.Trim();
+
+            str = str.Replace("\r\n", "\n");
+
+            byte[] buffer = textEncoding.GetBytes(str);
+
+            byte[] sendBuffer = new byte[length];
+            for (int i = 0; i < length; i++)
+            {
+                sendBuffer[i] = 0x00;
+            }
+            Array.Copy(buffer, sendBuffer, Math.Min(buffer.Length, length));
+            for (int i = buffer.Length + 1; i < length; i++)
+            {
+                sendBuffer[i] = 0xFD;
+            }
+
+            bw.BaseStream.Write(sendBuffer, 0, length);
+        }
     }
 }

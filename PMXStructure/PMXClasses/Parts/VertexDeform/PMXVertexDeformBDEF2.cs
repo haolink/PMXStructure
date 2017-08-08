@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 using PMXStructure.PMXClasses.Helpers;
 
@@ -29,13 +30,26 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             this.Bone2 = this.Model.Bones[bone2Index];
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            base.WriteToStream(bw, exportSettings);
+            if(exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            {
+                base.WriteToStream(bw, exportSettings);
 
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone2, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone2, exportSettings));
+                bw.Write(this.Bone1Weight);
+            }
+            else
+            {
+                int b1i = PMXBone.CheckIndexInModel(this.Bone1, exportSettings);
+                int b2i = PMXBone.CheckIndexInModel(this.Bone2, exportSettings);
+                
+                List<KeyValuePair<int, float>> sortKeys = new List<KeyValuePair<int, float>>();
+                if (b1i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b1i, this.Bone1Weight)); }
+                if (b2i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b2i, 1.0f - this.Bone1Weight)); }                
 
-            bw.Write(this.Bone1Weight);
+                this.ExportToPMDBase(sortKeys, bw);
+            }
         }
 
         public static PMXBaseDeform DeformFromPMDFile(PMXModel model, PMXVertex vertex, BinaryReader br)

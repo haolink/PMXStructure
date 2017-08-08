@@ -67,7 +67,7 @@ namespace PMXStructure.PMXClasses.Parts.RigidBodies
         }
 
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             byte[] buffer = new byte[2];
 

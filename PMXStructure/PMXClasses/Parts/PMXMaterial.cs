@@ -231,7 +231,7 @@ namespace PMXStructure.PMXClasses.Parts
             }            
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             this.WriteToStream(bw, exportSettings, null);
         }
@@ -261,54 +261,111 @@ namespace PMXStructure.PMXClasses.Parts
             }
         }
 
-        public void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings, string[] textures)
+        public void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings, string[] textures, string[] defaultToons = null)
         {
-            if (textures == null)
-            {
-                textures = new string[0];
+            if(exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            { //PMX Export
+                if (textures == null)
+                {
+                    textures = new string[0];
+                }
+
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+
+                this.Diffuse.WriteToStream(bw);
+                bw.Write(this.Alpha);
+                this.Specular.WriteToStream(bw);
+                bw.Write(this.SpecularFactor);
+                this.Ambient.WriteToStream(bw);
+
+                byte flags = (byte)(((int)this.GroundShadowType) << 6);
+                flags |= (byte)(this.DoubleSided ? PMXMaterial.MATERIAL_DOUBLE_SIDED : 0);
+                flags |= (byte)(this.GroundShadow ? PMXMaterial.MATERIAL_GROUND_SHADOW : 0);
+                flags |= (byte)(this.SelfShadow ? PMXMaterial.MATERIAL_SELF_SHADOW : 0);
+                flags |= (byte)(this.SelfShadowPlus ? PMXMaterial.MATERIAL_SELF_SHADOW_PLUS : 0);
+                flags |= (byte)(this.EdgeEnabled ? PMXMaterial.MATERIAL_EDGE_ENABLED : 0);
+                flags |= (byte)(this.VertexColor ? PMXMaterial.MATERIAL_VERTEX_COLOR : 0);
+                bw.Write(flags);
+
+                this.EdgeColor.WriteToStream(bw);
+                bw.Write(this.EdgeSize);
+
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.DiffuseTexture, textures));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.SphereTexture, textures));
+
+                bw.Write((byte)this.SphereMode);
+
+                if (this.StandardToon)
+                {
+                    bw.Write((byte)1);
+                    bw.Write(this.StandardToonIndex);
+                }
+                else
+                {
+                    bw.Write((byte)0);
+                    PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.NonStandardToonTexture, textures));
+                }
+
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.Comment);
+
+                int triangleVerticesCount = (this.Triangles.Count * 3);
+                bw.Write((Int32)triangleVerticesCount);
             }
-
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
-
-            this.Diffuse.WriteToStream(bw);
-            bw.Write(this.Alpha);
-            this.Specular.WriteToStream(bw);
-            bw.Write(this.SpecularFactor);
-            this.Ambient.WriteToStream(bw);
-            
-            byte flags = (byte)(((int)this.GroundShadowType) << 6);
-            flags |= (byte)(this.DoubleSided ? PMXMaterial.MATERIAL_DOUBLE_SIDED : 0);
-            flags |= (byte)(this.GroundShadow ? PMXMaterial.MATERIAL_GROUND_SHADOW : 0);
-            flags |= (byte)(this.SelfShadow ? PMXMaterial.MATERIAL_SELF_SHADOW : 0);
-            flags |= (byte)(this.SelfShadowPlus ? PMXMaterial.MATERIAL_SELF_SHADOW_PLUS : 0);
-            flags |= (byte)(this.EdgeEnabled ? PMXMaterial.MATERIAL_EDGE_ENABLED : 0);
-            flags |= (byte)(this.VertexColor ? PMXMaterial.MATERIAL_VERTEX_COLOR : 0);
-            bw.Write(flags);
-
-            this.EdgeColor.WriteToStream(bw);
-            bw.Write(this.EdgeSize);
-
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.DiffuseTexture, textures));
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.SphereTexture, textures));
-
-            bw.Write((byte)this.SphereMode);
-
-            if(this.StandardToon)
-            {
-                bw.Write((byte)1);
-                bw.Write(this.StandardToonIndex);
-            } 
             else
             {
-                bw.Write((byte)0);
-                PMXParser.WriteIndex(bw, exportSettings.BitSettings.TextureIndexLength, this.GetTextureIndex(this.NonStandardToonTexture, textures));
-            }
+                if(defaultToons == null || textures == null)
+                {
+                    throw new InvalidDataException("Toon data required for PMD.");
+                }
 
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.Comment);
+                //PMD format
+                this.Diffuse.WriteToStream(bw);
+                bw.Write(this.Alpha);
+                bw.Write(this.SpecularFactor);
+                this.Specular.WriteToStream(bw);
+                this.Ambient.WriteToStream(bw);
 
-            int triangleVerticesCount = (this.Triangles.Count * 3);
-            bw.Write((Int32)triangleVerticesCount);
+                int toonIndex = -1;
+                string toonFile = null;
+                if (this.StandardToon && this.StandardToonIndex >= 0)
+                {
+                    if(this.StandardToonIndex < 10)
+                    {
+                        toonFile = defaultToons[this.StandardToonIndex];
+                    }
+                }
+                else if(!this.StandardToon)
+                {
+                    toonFile = this.NonStandardToonTexture;                    
+                }
+
+                if(toonFile != null)
+                {
+                    int index = Array.IndexOf<string>(textures, toonFile);
+                    if (index >= 0 && index < 10)
+                    {
+                        toonIndex = index;
+                    }
+                }
+
+                bw.Write((sbyte)toonIndex);
+                bw.Write((byte)(this.EdgeEnabled ? 1 : 0));
+
+                bw.Write((Int32)(this.Triangles.Count * 3));
+
+                string textureFile = "";
+                if(this.DiffuseTexture != null)
+                {
+                    textureFile += this.DiffuseTexture;
+                }
+                if(this.SphereTexture != null)
+                {
+                    textureFile += "*" + this.DiffuseTexture;
+                }
+
+                PMDParser.WriteString(bw, 20, exportSettings.TextEncoding, textureFile);
+            }            
         }
 
 
@@ -319,7 +376,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// <param name="exportSettings"></param>
         /// <param name="nullAcceptable"></param>
         /// <returns></returns>
-        public static int CheckIndexInModel(PMXMaterial mat, PMXExportSettings exportSettings, bool nullAcceptable = true)
+        public static int CheckIndexInModel(PMXMaterial mat, MMDExportSettings exportSettings, bool nullAcceptable = true)
         {
             if (mat == null)
             {

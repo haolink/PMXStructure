@@ -104,21 +104,31 @@ namespace PMXStructure.PMXClasses.Parts
             
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             this.Position.WriteToStream(bw);
             this.Normals.WriteToStream(bw);        
             this.UV.WriteToStream(bw);
 
-            for(int i = 0; i < exportSettings.ExtendedUV; i++)
+            if (exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
             {
-                PMXQuaternion set = ((i >= this.AddedUVs.Count) ? (new PMXQuaternion()) : this.AddedUVs[i]);
-                set.WriteToStream(bw);
+                //PMX format
+                for (int i = 0; i < exportSettings.ExtendedUV; i++)
+                {
+                    PMXQuaternion set = ((i >= this.AddedUVs.Count) ? (new PMXQuaternion()) : this.AddedUVs[i]);
+                    set.WriteToStream(bw);
+                }
+            
+                this.Deform.WriteToStream(bw, exportSettings);
+
+                bw.Write(this.OutlineMagnification);
             }
+            else
+            {
+                this.Deform.WriteToStream(bw, exportSettings);
 
-            this.Deform.WriteToStream(bw, exportSettings);
-
-            bw.Write(this.OutlineMagnification);
+                bw.Write((byte)((this.OutlineMagnification > 0.2f) ? 0:1));
+            }
         }
 
         /// <summary>
@@ -126,7 +136,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static int CheckIndexInModel(PMXVertex vtx, PMXExportSettings settings)
+        public static int CheckIndexInModel(PMXVertex vtx, MMDExportSettings settings)
         {
             if (vtx == null)
             {
@@ -161,7 +171,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// </summary>
         /// <param name="index"></param>
         /// <param name="settings"></param>
-        public void AddIndexForExport(PMXExportSettings settings, int index)
+        public void AddIndexForExport(MMDExportSettings settings, int index)
         {
             this._exportHashNumbers[settings.ExportHash] = index;
         }
@@ -171,7 +181,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// </summary>
         /// <param name="index"></param>
         /// <param name="settings"></param>
-        public void RemoveIndexForExport(PMXExportSettings settings)
+        public void RemoveIndexForExport(MMDExportSettings settings)
         {
             if(this._exportHashNumbers.ContainsKey(settings.ExportHash))
             {

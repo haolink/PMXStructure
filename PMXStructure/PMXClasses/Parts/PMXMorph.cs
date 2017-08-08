@@ -114,7 +114,7 @@ namespace PMXStructure.PMXClasses.Parts
             }
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
             PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
@@ -149,7 +149,7 @@ namespace PMXStructure.PMXClasses.Parts
         /// <param name="exportSettings"></param>
         /// <param name="nullAcceptable"></param>
         /// <returns></returns>
-        public static int CheckIndexInModel(PMXMorph mrph, PMXExportSettings exportSettings, bool nullAcceptable = true)
+        public static int CheckIndexInModel(PMXMorph mrph, MMDExportSettings exportSettings, bool nullAcceptable = true)
         {
             if (mrph == null)
             {

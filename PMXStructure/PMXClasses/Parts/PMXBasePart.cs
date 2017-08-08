@@ -24,6 +24,6 @@ namespace PMXStructure.PMXClasses.Parts
 
         public abstract void FinaliseAfterImport();
 
-        public abstract void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings);
+        public abstract void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings);
     }
 }

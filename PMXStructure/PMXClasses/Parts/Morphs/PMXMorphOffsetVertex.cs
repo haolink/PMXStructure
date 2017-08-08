@@ -40,7 +40,7 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.Translation = PMXVector3.LoadFromStreamStatic(br);
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex, exportSettings));
 

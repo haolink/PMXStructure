@@ -127,6 +127,7 @@ namespace PMXStructure
 
             md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
 
+            md.SaveToPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmd");
             md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");
 
             //Console.WriteLine(md.Materials.Count);

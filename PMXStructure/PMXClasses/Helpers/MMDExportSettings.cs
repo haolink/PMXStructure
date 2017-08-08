@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace PMXStructure.PMXClasses.Helpers
 {
-    public class PMXExportSettings
+    public class MMDExportSettings
     {
+        public enum ModelFormat
+        {
+            PMX, PMD
+        }
+
+        public ModelFormat Format { get; private set; }
+
         private PMXBitLength _bitSettings;
         public PMXBitLength BitSettings
         {
@@ -24,9 +31,11 @@ namespace PMXStructure.PMXClasses.Helpers
         public Encoding TextEncoding { get; set; }
         public byte ExtendedUV { get; set; }
 
-        public PMXExportSettings()
+        public MMDExportSettings(ModelFormat format = ModelFormat.PMD)
         {
             this._bitSettings = new PMXBitLength();
+
+            this.Format = format;
         }
     }
 }

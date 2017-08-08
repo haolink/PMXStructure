@@ -33,7 +33,7 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             this.Rotation = PMXQuaternion.LoadFromStreamStatic(br);
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
             PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone, exportSettings, false));
             this.Translation.WriteToStream(bw);

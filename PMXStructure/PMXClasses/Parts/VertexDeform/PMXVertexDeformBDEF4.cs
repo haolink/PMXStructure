@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 using PMXStructure.PMXClasses.Helpers;
 
@@ -41,18 +42,36 @@ namespace PMXStructure.PMXClasses.Parts.VertexDeform
             this.Bone4 = this.Model.Bones[bone4Index];
         }
 
-        public override void WriteToStream(BinaryWriter bw, PMXExportSettings exportSettings)
+        public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            bw.Write(this.deformIdentifier);
+            if(exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            {
+                bw.Write(this.deformIdentifier);
 
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone1, exportSettings));
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone2, exportSettings));
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone3, exportSettings));
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone4, exportSettings));
-            bw.Write(this.Bone1Weight);
-            bw.Write(this.Bone2Weight);
-            bw.Write(this.Bone3Weight);
-            bw.Write(this.Bone4Weight);
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone1, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone2, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone3, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone4, exportSettings));
+                bw.Write(this.Bone1Weight);
+                bw.Write(this.Bone2Weight);
+                bw.Write(this.Bone3Weight);
+                bw.Write(this.Bone4Weight);
+            }            
+            else
+            {
+                int b1i = PMXBone.CheckIndexInModel(this.Bone1, exportSettings);
+                int b2i = PMXBone.CheckIndexInModel(this.Bone2, exportSettings);
+                int b3i = PMXBone.CheckIndexInModel(this.Bone3, exportSettings);
+                int b4i = PMXBone.CheckIndexInModel(this.Bone4, exportSettings);
+
+                List<KeyValuePair<int, float>> sortKeys = new List<KeyValuePair<int, float>>();
+                if (b1i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b1i, this.Bone1Weight)); }
+                if (b2i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b2i, this.Bone2Weight)); }
+                if (b3i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b3i, this.Bone3Weight)); }
+                if (b4i >= 0) { sortKeys.Add(new KeyValuePair<int, float>(b4i, this.Bone4Weight)); }
+
+                this.ExportToPMDBase(sortKeys, bw);
+            }
         }
     }
 }
