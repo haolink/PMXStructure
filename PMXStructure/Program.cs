@@ -5,6 +5,7 @@ using PMXStructure.PMXClasses.Parts;
 using PMXStructure.PMXClasses.General;
 
 using System.IO;
+using PMXStructure.PMXClasses.Parts.VertexDeform;
 
 namespace PMXStructure
 {
@@ -129,7 +130,7 @@ namespace PMXStructure
 
             md.SaveToPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmd");
             md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");
-
+            
             //Console.WriteLine(md.Materials.Count);
 
             Console.ReadLine();

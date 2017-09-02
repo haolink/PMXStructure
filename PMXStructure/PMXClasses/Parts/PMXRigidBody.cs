@@ -122,10 +122,19 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+            if(exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            {
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
 
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone, exportSettings, true));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.BoneIndexLength, PMXBone.CheckIndexInModel(this.Bone, exportSettings, true));
+            }
+            else
+            {
+                PMDParser.WriteString(bw, 20, exportSettings.TextEncoding, this.NameEN);
+
+                PMXParser.WriteIndex(bw, 2, PMXBone.CheckIndexInModel(this.Bone, exportSettings, true));
+            }
 
             bw.Write((byte)this.CollissionGroup);
             this.NoCollissionGroups.WriteToStream(bw, exportSettings);
@@ -133,7 +142,16 @@ namespace PMXStructure.PMXClasses.Parts
             bw.Write((byte)(int)this.Shape);
             this._shapeSize.WriteToStream(bw);
 
-            this.Position.WriteToStream(bw);
+            if (exportSettings.Format == MMDExportSettings.ModelFormat.PMD && this.Bone != null)
+            { //PMD location fix
+                PMXVector3 pos = new PMXVector3(this.Position.X, this.Position.Y, this.Position.Z);
+                pos -= this.Bone.Position;
+                pos.WriteToStream(bw);
+            } else
+            {
+                this.Position.WriteToStream(bw);
+            }
+            
             this.Rotation.WriteToStream(bw);
 
             bw.Write(this.Mass);

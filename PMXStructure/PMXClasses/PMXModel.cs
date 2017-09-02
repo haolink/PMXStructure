@@ -5,6 +5,8 @@ using System.Text;
 
 using PMXStructure.PMXClasses.Helpers;
 using PMXStructure.PMXClasses.Parts;
+using PMXStructure.PMXClasses.General;
+using PMXStructure.PMXClasses.Parts.Morphs;
 
 using PMXStructure.PMXClasses.Parts.VertexDeform;
 
@@ -571,6 +573,12 @@ namespace PMXStructure.PMXClasses
             {
                 PMXMorph mrph = new PMXMorph(md);
                 mrph.LoadFromStream(br, settings);
+
+                if(mrph.NameJP == "base")
+                {
+                    settings.BaseMorph = mrph;
+                }
+
                 md.Morphs.Add(mrph);
                 allParts.Add(mrph);
             }
@@ -751,7 +759,7 @@ namespace PMXStructure.PMXClasses
             int triangleCount = 0;
             foreach (PMXMaterial mat in this.Materials)
             {
-                this.AddToListIfRequired(requiredToons, mat.DiffuseTexture);
+                //this.AddToListIfRequired(requiredToons, mat.DiffuseTexture);
 
                 if (mat.StandardToon)
                 {
@@ -782,7 +790,7 @@ namespace PMXStructure.PMXClasses
             BinaryWriter bw = new BinaryWriter(ms);
 
             byte[] magic = Encoding.ASCII.GetBytes("Pmd");
-            stream.Write(magic, 0, 3);
+            ms.Write(magic, 0, 3);
 
             Random rnd = new Random();
             int randomNumber = rnd.Next();
@@ -844,6 +852,155 @@ namespace PMXStructure.PMXClasses
                 bn.WriteToStream(bw, settings, ikBones);
             }
 
+            //PMD IKs
+            bw.Write((Int16)ikBones.Length);
+            foreach (PMXBone bn in ikBones)
+            {
+                PMXParser.WriteIndex(bw, 2, PMXBone.CheckIndexInModel(bn, settings, true));
+                bn.IK.WriteToStream(bw, settings);
+            }
+
+            //PMD Morphs
+            List<PMXMorph> exportableMorphs = new List<PMXMorph>();
+            List<PMXVertex> baseVertices = new List<PMXVertex>();
+            foreach (PMXMorph mrph in this.Morphs)
+            {
+                bool exportable = true;
+                foreach(PMXMorphOffsetBase mofb in mrph.Offsets)
+                {
+                    if(!(mofb is PMXMorphOffsetVertex))
+                    {
+                        exportable = false;
+                    }
+                }
+
+                if(exportable)
+                {
+                    exportableMorphs.Add(mrph);
+                    foreach (PMXMorphOffsetBase mofb in mrph.Offsets)
+                    {
+                        PMXMorphOffsetVertex mofv = (PMXMorphOffsetVertex)mofb;
+                        if(!baseVertices.Contains(mofv.Vertex))
+                        {
+                            baseVertices.Add(mofv.Vertex);
+                        }                        
+                    }
+                }
+            }
+            settings.BaseMorphVertices = baseVertices;
+
+            bw.Write((Int16)(exportableMorphs.Count + 1));
+            PMDParser.WriteString(bw, 20, settings.TextEncoding, "base");
+            bw.Write((Int32)baseVertices.Count);
+            bw.Write((byte)0);
+            foreach(PMXVertex vtx in baseVertices)
+            {
+                PMXParser.WriteIndex(bw, 4, PMXVertex.CheckIndexInModel(vtx, settings));
+                vtx.Position.WriteToStream(bw);
+            }            
+
+            foreach (PMXMorph mrph in exportableMorphs)
+            {
+                mrph.WriteToStream(bw, settings);
+            }
+
+            //Display groups - kinda insanely set up for PMD
+
+            //PMD doesn't have a root slot
+
+            //Expression display slots
+            List<PMXMorph> morphs = new List<PMXMorph>(); //List of facial expressions
+            foreach (PMXDisplaySlot ds in this.DisplaySlots)
+            {
+                foreach(PMXBasePart reference in ds.References)
+                {
+                    if(reference is PMXMorph)
+                    {
+                        morphs.Add((PMXMorph)reference);
+                    }
+                }
+            }
+            bw.Write((byte)morphs.Count);
+            foreach(PMXMorph mrph in morphs)
+            {
+                int morphId = this.Morphs.IndexOf(mrph) + 1;
+                bw.Write((UInt16)morphId);
+            }
+
+            //Bone display slots
+            bw.Write((byte)(this.DisplaySlots.Count - 2));
+            for(int dsidx = 2; dsidx < this.DisplaySlots.Count; dsidx++)
+            {
+                PMDParser.WriteString(bw, 50, settings.TextEncoding, this.DisplaySlots[dsidx].NameJP);
+            }
+
+            //We've got the names - now let's put the bones in
+            uint totalBoneRefCount = 0;
+            for (int dsidx = 2; dsidx < this.DisplaySlots.Count; dsidx++)
+            {
+                PMXDisplaySlot ds = this.DisplaySlots[dsidx];
+                foreach (PMXBasePart reference in ds.References)
+                {
+                    if (reference is PMXBone)
+                    {
+                        totalBoneRefCount++;
+                    }
+                }
+            }
+            bw.Write((uint)totalBoneRefCount);
+            for (int dsidx = 2; dsidx < this.DisplaySlots.Count; dsidx++)
+            {
+                PMXDisplaySlot ds = this.DisplaySlots[dsidx];
+                foreach (PMXBasePart reference in ds.References)
+                {
+                    if (reference is PMXBone)
+                    {
+                        PMXBone bref = (PMXBone)reference;
+                        bw.Write((UInt16)this.Bones.IndexOf(bref));
+                        bw.Write((byte)(dsidx - 1));
+                    }
+                }
+            }
+
+            //Always write english names
+            bw.Write((byte)1);
+            PMDParser.WriteString(bw, 20, settings.TextEncoding, this.NameEN);
+            PMDParser.WriteString(bw, 256, settings.TextEncoding, this.DescriptionEN);
+            foreach (PMXBone bn in this.Bones)
+            {
+                PMDParser.WriteString(bw, 20, settings.TextEncoding, bn.NameEN);
+            }
+            
+            foreach (PMXMorph mrph in exportableMorphs)
+            {
+                PMDParser.WriteString(bw, 20, settings.TextEncoding, mrph.NameEN);
+            }
+            for (int i = 2; i < this.DisplaySlots.Count; i++)
+            {
+                PMDParser.WriteString(bw, 50, settings.TextEncoding, this.DisplaySlots[i].NameEN);
+            }
+
+            //Toon files
+            foreach(string toon in toonFiles)
+            {
+                PMDParser.WriteString(bw, 100, settings.TextEncoding, toon);
+            }
+
+            //Rigid bodies
+            bw.Write((uint)this.RigidBodies.Count);
+            
+            foreach(PMXRigidBody rb in this.RigidBodies)
+            {
+                rb.WriteToStream(bw, settings);                
+            }
+
+            //Joints
+            bw.Write((uint)this.Joints.Count);
+
+            foreach (PMXJoint jt in this.Joints)
+            {
+                jt.WriteToStream(bw, settings);
+            }
 
             //Vertex restore
             foreach (PMXVertex v in this.Vertices)

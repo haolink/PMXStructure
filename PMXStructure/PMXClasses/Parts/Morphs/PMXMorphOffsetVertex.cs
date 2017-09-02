@@ -34,6 +34,15 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
             else
             { //PMD
                 vtxIndex = br.ReadInt32();
+
+                if(importSettings.BaseMorph != null)
+                {
+                    if(vtxIndex < importSettings.BaseMorph.Offsets.Count)
+                    {
+                        PMXMorphOffsetVertex mov = (PMXMorphOffsetVertex)importSettings.BaseMorph.Offsets[vtxIndex];
+                        vtxIndex = this.Model.Vertices.IndexOf(mov.Vertex);
+                    }
+                }
             }
 
             this.Vertex = this.Model.Vertices[vtxIndex];
@@ -42,7 +51,14 @@ namespace PMXStructure.PMXClasses.Parts.Morphs
 
         public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex, exportSettings));
+            if (exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            { //PMX
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.VertexIndexLength, PMXVertex.CheckIndexInModel(this.Vertex, exportSettings));
+            }
+            else
+            { //PMD
+                PMXParser.WriteIndex(bw, 4, exportSettings.BaseMorphVertices.IndexOf(this.Vertex));
+            }
 
             this.Translation.WriteToStream(bw);
         }

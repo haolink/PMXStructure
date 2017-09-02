@@ -96,13 +96,24 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+            if(exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            {
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
 
-            bw.Write((byte)(int)this.Type);
+                bw.Write((byte)(int)this.Type);
 
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyA, exportSettings));
-            PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyB, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyA, exportSettings));
+                PMXParser.WriteIndex(bw, exportSettings.BitSettings.RigidBodyIndexLength, PMXRigidBody.CheckIndexInModel(this.RigidBodyB, exportSettings));
+            }
+            else
+            {
+                PMDParser.WriteString(bw, 20, exportSettings.TextEncoding, this.NameJP);
+                
+                PMXParser.WriteIndex(bw, 4, PMXRigidBody.CheckIndexInModel(this.RigidBodyA, exportSettings));
+                PMXParser.WriteIndex(bw, 4, PMXRigidBody.CheckIndexInModel(this.RigidBodyB, exportSettings));
+            }
+            
 
             this.Position.WriteToStream(bw);
             this.Rotation.WriteToStream(bw);

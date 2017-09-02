@@ -116,27 +116,44 @@ namespace PMXStructure.PMXClasses.Parts
 
         public override void WriteToStream(BinaryWriter bw, MMDExportSettings exportSettings)
         {
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
-            PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
+            if (exportSettings.Format == MMDExportSettings.ModelFormat.PMX)
+            { //PMX format
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameJP);
+                PMXParser.WriteString(bw, exportSettings.TextEncoding, this.NameEN);
 
-            bw.Write((byte)(int)this.Panel);
+                bw.Write((byte)(int)this.Panel);
 
-            if(this.Offsets.Count == 0)
-            {
-                bw.Write((byte)0);
-            }
+                if (this.Offsets.Count == 0)
+                {
+                    bw.Write((byte)0);
+                }
+                else
+                {
+                    byte morphTypeId = this.Offsets[0].MorphTargetType;
+                    bw.Write((byte)morphTypeId);
+                    bw.Write((Int32)this.Offsets.Count);
+
+                    foreach (PMXMorphOffsetBase offset in this.Offsets)
+                    {
+                        if (offset.MorphTargetType != morphTypeId)
+                        {
+                            throw new InvalidDataException("Morph offset types mustn't be mixed types");
+                        }
+                        offset.WriteToStream(bw, exportSettings);
+                    }
+                }
+            } //PMD format
             else
             {
-                byte morphTypeId = this.Offsets[0].MorphTargetType;
-                bw.Write((byte)morphTypeId);
+                PMDParser.WriteString(bw, 20, exportSettings.TextEncoding, this.NameJP);
                 bw.Write((Int32)this.Offsets.Count);
-
+                bw.Write((byte)(int)this.Panel);
                 foreach (PMXMorphOffsetBase offset in this.Offsets)
                 {
-                    if(offset.MorphTargetType != morphTypeId)
+                    if (!(offset is PMXMorphOffsetVertex))
                     {
-                        throw new InvalidDataException("Morph offset types mustn't be mixed types");
-                    }                    
+                        throw new InvalidDataException("PMD only supports vertex morphs.");
+                    }
                     offset.WriteToStream(bw, exportSettings);
                 }
             }

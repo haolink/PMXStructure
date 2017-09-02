@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 
+using PMXStructure.PMXClasses.Parts;
+
 namespace PMXStructure.PMXClasses.Helpers
 {
     public class MMDImportSettings
@@ -24,6 +26,7 @@ namespace PMXStructure.PMXClasses.Helpers
 
         public float PMXFileVersion { get; private set; }
 
+        public PMXMorph BaseMorph { get; set; }
 
         public MMDImportSettings(ModelFormat format)
         {

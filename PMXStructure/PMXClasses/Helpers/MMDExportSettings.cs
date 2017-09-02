@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using PMXStructure.PMXClasses.Parts;
+
 namespace PMXStructure.PMXClasses.Helpers
 {
     public class MMDExportSettings
@@ -27,6 +29,8 @@ namespace PMXStructure.PMXClasses.Helpers
         public int ExportHash { get; set; } //For quicker vertex export
 
         public PMXModel Model { get; set; }
+
+        public List<PMXVertex> BaseMorphVertices { get; set; }
 
         public Encoding TextEncoding { get; set; }
         public byte ExtendedUV { get; set; }
