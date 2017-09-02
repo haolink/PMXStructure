@@ -4,6 +4,8 @@ using PMXStructure.PMXClasses;
 using PMXStructure.PMXClasses.Parts;
 using PMXStructure.PMXClasses.General;
 
+using PMXStructure.VMDClasses;
+
 using System.IO;
 using PMXStructure.PMXClasses.Parts.VertexDeform;
 
@@ -126,12 +128,20 @@ namespace PMXStructure
 
             //WriteTestModel();
 
-            md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
+            /*md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
 
             md.SaveToPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmd");
-            md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");
-            
+            md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");*/
+
             //Console.WriteLine(md.Materials.Count);
+
+            VMDFile vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
+            vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSongSave.vmd");
+            Console.WriteLine(vf.ModelName);
+
+            vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\Camera.vmd");
+            vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\CameraSave.vmd");
+            Console.WriteLine(vf.ModelName);
 
             Console.ReadLine();
         }

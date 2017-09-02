@@ -72,6 +72,15 @@
     <Compile Include="PMXClasses\PMXModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VMDClasses\Helpers\VMDString.cs" />
+    <Compile Include="VMDClasses\Parts\VMDBoneFrame.cs" />
+    <Compile Include="VMDClasses\Parts\VMDCameraFrame.cs" />
+    <Compile Include="VMDClasses\Parts\VMDIKFrame.cs" />
+    <Compile Include="VMDClasses\Parts\VMDIKSetting.cs" />
+    <Compile Include="VMDClasses\Parts\VMDLightFrame.cs" />
+    <Compile Include="VMDClasses\Parts\VMDMorphFrame.cs" />
+    <Compile Include="VMDClasses\Parts\VMDShadowFrame.cs" />
+    <Compile Include="VMDClasses\VMDFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
