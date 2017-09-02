@@ -8,6 +8,7 @@ using PMXStructure.VMDClasses;
 
 using System.IO;
 using PMXStructure.PMXClasses.Parts.VertexDeform;
+using PMXStructure.PMXClasses.Parts.Morphs;
 
 namespace PMXStructure
 {
@@ -135,13 +136,68 @@ namespace PMXStructure
 
             //Console.WriteLine(md.Materials.Count);
 
-            VMDFile vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
+            /*VMDFile vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
             vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSongSave.vmd");
             Console.WriteLine(vf.ModelName);
 
             vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\Camera.vmd");
             vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\CameraSave.vmd");
-            Console.WriteLine(vf.ModelName);
+            Console.WriteLine(vf.ModelName);*/
+
+            PMXModel pmx = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room.pmx");
+            float mdlScale = 3.0f;
+
+            foreach (PMXVertex vtx in pmx.Vertices)
+            {
+                vtx.Position *= mdlScale;
+
+                if (vtx.Deform is PMXVertexDeformSDEF)
+                {
+                    PMXVertexDeformSDEF vd = (PMXVertexDeformSDEF)vtx.Deform;
+                    vd.C *= mdlScale;
+                    vd.R0 *= mdlScale;
+                    vd.R1 *= mdlScale;
+                }
+            }
+            foreach (PMXMaterial mat in pmx.Materials)
+            {
+                mat.EdgeSize *= mdlScale;
+            }
+            foreach (PMXBone bn in pmx.Bones)
+            {
+                bn.Position *= mdlScale;
+            }
+            foreach (PMXMorph mrph in pmx.Morphs)
+            {
+                foreach (PMXMorphOffsetBase offset in mrph.Offsets)
+                {
+                    if (offset is PMXMorphOffsetVertex)
+                    {
+                        PMXMorphOffsetVertex ov = (PMXMorphOffsetVertex)offset;
+                        ov.Translation *= mdlScale;
+                    }
+                    if (offset is PMXMorphOffsetBone)
+                    {
+                        PMXMorphOffsetBone ob = (PMXMorphOffsetBone)offset;
+                        ob.Translation *= mdlScale;
+                    }
+                }
+            }
+            foreach (PMXRigidBody rg in pmx.RigidBodies)
+            {
+                rg.Position *= mdlScale;
+                rg.Width *= mdlScale;
+                rg.Height *= mdlScale;
+                rg.Depth *= mdlScale;
+            }
+            foreach (PMXJoint jt in pmx.Joints)
+            {
+                jt.Position *= mdlScale;
+                jt.TranslationLimitMin *= mdlScale;
+                jt.TranslationLimitMax *= mdlScale;
+            }
+
+            pmx.SaveToFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room_scale.pmx");
 
             Console.ReadLine();
         }

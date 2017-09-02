@@ -125,7 +125,8 @@ namespace PMXStructure.PMXClasses.Parts
 
                 if (this.Offsets.Count == 0)
                 {
-                    bw.Write((byte)0);
+                    bw.Write((byte)PMXMorph.MORPH_IDENTIFY_VERTEX);
+                    bw.Write((Int32)0);
                 }
                 else
                 {
