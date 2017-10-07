@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace PMXStructure.PMXClasses.General
+namespace PMXStructure.PMXClasses
 {
     public class PMXVector3
     {

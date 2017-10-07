@@ -2,11 +2,10 @@
 
 
 using System.IO;
-using PMXStructure.PMXClasses.General;
 
-using PMXStructure.VMDClasses.Helpers;
+using PMXStructure.PMXClasses;
 
-namespace PMXStructure.VMDClasses.Parts
+namespace PMXStructure.VMDClasses
 {
     public class VMDCameraFrame
     {

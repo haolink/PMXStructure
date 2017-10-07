@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using PMXStructure.PMXClasses.Parts;
-
-namespace PMXStructure.PMXClasses.Helpers
+namespace PMXStructure.PMXClasses
 {
     public class MMDExportSettings
     {

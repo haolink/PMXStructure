@@ -3,7 +3,7 @@
 using System.IO;
 using System.Text;
 
-namespace PMXStructure.VMDClasses.Helpers
+namespace PMXStructure.VMDClasses
 {
     public static class VMDString
     {

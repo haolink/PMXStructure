@@ -2,9 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 
-using PMXStructure.PMXClasses.Helpers;
-
-namespace PMXStructure.PMXClasses.Parts.VertexDeform
+namespace PMXStructure.PMXClasses
 {
     public class PMXVertexDeformBDEF1 : PMXBaseDeform
     {

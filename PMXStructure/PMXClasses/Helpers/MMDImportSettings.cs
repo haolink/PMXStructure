@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Text;
 
-using PMXStructure.PMXClasses.Parts;
-
-namespace PMXStructure.PMXClasses.Helpers
+namespace PMXStructure.PMXClasses
 {
     public class MMDImportSettings
     {

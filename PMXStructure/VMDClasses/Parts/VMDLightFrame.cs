@@ -1,11 +1,9 @@
 ﻿using System;
 
 using System.IO;
-using PMXStructure.PMXClasses.General;
+using PMXStructure.PMXClasses;
 
-using PMXStructure.VMDClasses.Helpers;
-
-namespace PMXStructure.VMDClasses.Parts
+namespace PMXStructure.VMDClasses
 {
     public class VMDLightFrame
     {

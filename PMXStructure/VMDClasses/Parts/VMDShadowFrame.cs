@@ -1,11 +1,10 @@
 ﻿using System;
 
 using System.IO;
-using PMXStructure.PMXClasses.General;
 
-using PMXStructure.VMDClasses.Helpers;
+using PMXStructure.VMDClasses;
 
-namespace PMXStructure.VMDClasses.Parts
+namespace PMXStructure.VMDClasses
 {
     public class VMDShadowFrame
     {

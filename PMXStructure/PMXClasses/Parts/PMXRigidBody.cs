@@ -1,11 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using PMXStructure.PMXClasses.Helpers;
-using PMXStructure.PMXClasses.General;
-using PMXStructure.PMXClasses.Parts.RigidBodies;
-
-namespace PMXStructure.PMXClasses.Parts
+namespace PMXStructure.PMXClasses
 {
     public class PMXRigidBody : PMXBasePart
     {

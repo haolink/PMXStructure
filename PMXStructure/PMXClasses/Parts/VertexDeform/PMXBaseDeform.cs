@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace PMXStructure.PMXClasses.Parts.VertexDeform
+namespace PMXStructure.PMXClasses
 {
     public abstract class PMXBaseDeform : PMXBasePart
     {

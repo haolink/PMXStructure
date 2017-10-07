@@ -1,14 +1,8 @@
 ﻿using System;
+using System.IO;
 
 using PMXStructure.PMXClasses;
-using PMXStructure.PMXClasses.Parts;
-using PMXStructure.PMXClasses.General;
-
 using PMXStructure.VMDClasses;
-
-using System.IO;
-using PMXStructure.PMXClasses.Parts.VertexDeform;
-using PMXStructure.PMXClasses.Parts.Morphs;
 
 namespace PMXStructure
 {
@@ -144,7 +138,7 @@ namespace PMXStructure
             vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\CameraSave.vmd");
             Console.WriteLine(vf.ModelName);*/
 
-            PMXModel pmx = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room.pmx");
+            /*PMXModel pmx = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room.pmx");
             float mdlScale = 3.0f;
 
             foreach (PMXVertex vtx in pmx.Vertices)
@@ -197,7 +191,54 @@ namespace PMXStructure
                 jt.TranslationLimitMax *= mdlScale;
             }
 
-            pmx.SaveToFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room_scale.pmx");
+            pmx.SaveToFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room_scale.pmx");*/
+
+            /*float mdlScale = 3.0f;
+
+            VMDFile vmd = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
+            foreach (VMDBoneFrame vbf in vmd.Bones)
+            {
+                vbf.Translation *= mdlScale;
+            }
+
+            foreach (VMDCameraFrame vcf in vmd.Camera)
+            {
+                vcf.Distance *= mdlScale;
+                vcf.Position *= mdlScale;
+            }
+
+            vmd.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong_scale.vmd"); */
+
+            md = PMXModel.LoadFromPMXFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape.pmx");
+
+            foreach(PMXVertex vtx in md.Vertices)
+            {
+                vtx.Position.X *= -1.0f;
+                vtx.Normals.X *= -1.0f;
+                //vtx.UV.V *= -1.0f;
+            }
+
+            PMXVertex vb;
+            foreach (PMXMaterial mt in md.Materials)
+            {
+                foreach(PMXTriangle vtr in mt.Triangles)
+                {
+                    vb = vtr.Vertex1;
+                    vtr.Vertex1 = vtr.Vertex3;
+                    vtr.Vertex3 = vb;                    
+                }
+            }
+
+            foreach (PMXBone bn in md.Bones)
+            {
+                bn.Position.X *= -1.0f;
+                if(!bn.HasChildBone)
+                {
+                    bn.ChildVector.X *= 1.0f;
+                }
+            }
+
+            md.SaveToFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape2.pmx");
 
             Console.ReadLine();
         }

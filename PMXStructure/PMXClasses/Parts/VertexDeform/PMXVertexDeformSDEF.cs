@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using PMXStructure.PMXClasses.General;
-using PMXStructure.PMXClasses.Helpers;
-
-namespace PMXStructure.PMXClasses.Parts.VertexDeform
+namespace PMXStructure.PMXClasses
 {
     class PMXVertexDeformSDEF : PMXVertexDeformBDEF2
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PMXStructure.PMXClasses.Parts.Morphs
+namespace PMXStructure.PMXClasses
 {
     public abstract class PMXMorphOffsetBase : PMXBasePart
     {

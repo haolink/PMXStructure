@@ -1,9 +1,8 @@
 ﻿using System;
 
 using System.IO;
-using PMXStructure.VMDClasses.Helpers;
 
-namespace PMXStructure.VMDClasses.Parts
+namespace PMXStructure.VMDClasses
 {
     public class VMDMorphFrame
     {

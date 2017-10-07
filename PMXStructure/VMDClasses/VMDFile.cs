@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 
 using System.IO;
-using PMXStructure.VMDClasses.Helpers;
-using PMXStructure.VMDClasses.Parts;
 
 namespace PMXStructure.VMDClasses
 {
@@ -113,6 +111,8 @@ namespace PMXStructure.VMDClasses
             FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
 
             this.SaveToStream(fs);
+
+            fs.Close();
 
             fs = null;           
         }

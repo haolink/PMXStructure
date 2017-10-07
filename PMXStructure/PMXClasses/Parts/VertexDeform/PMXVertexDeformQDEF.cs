@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PMXStructure.PMXClasses.Parts.VertexDeform
+namespace PMXStructure.PMXClasses
 {
     class PMXVertexDeformQDEF : PMXVertexDeformBDEF4
     {

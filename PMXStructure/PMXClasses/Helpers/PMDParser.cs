@@ -3,7 +3,7 @@
 using System.Text;
 using System.IO;
 
-namespace PMXStructure.PMXClasses.Helpers
+namespace PMXStructure.PMXClasses
 {
     public static class PMDParser
     {

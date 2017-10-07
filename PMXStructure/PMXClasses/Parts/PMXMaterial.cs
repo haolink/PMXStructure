@@ -2,10 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 
-using PMXStructure.PMXClasses.Helpers;
-using PMXStructure.PMXClasses.General;
-
-namespace PMXStructure.PMXClasses.Parts
+namespace PMXStructure.PMXClasses
 {
     public class PMXMaterial : PMXBasePart
     {

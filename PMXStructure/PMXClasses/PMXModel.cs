@@ -3,13 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using PMXStructure.PMXClasses.Helpers;
-using PMXStructure.PMXClasses.Parts;
-using PMXStructure.PMXClasses.General;
-using PMXStructure.PMXClasses.Parts.Morphs;
-
-using PMXStructure.PMXClasses.Parts.VertexDeform;
-
 namespace PMXStructure.PMXClasses
 {
     public class PMXModel

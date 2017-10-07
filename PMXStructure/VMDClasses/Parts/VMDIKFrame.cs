@@ -2,11 +2,9 @@
 
 using System.IO;
 using System.Collections.Generic;
-using PMXStructure.PMXClasses.General;
+using PMXStructure.PMXClasses;
 
-using PMXStructure.VMDClasses.Helpers;
-
-namespace PMXStructure.VMDClasses.Parts
+namespace PMXStructure.VMDClasses
 {
     public class VMDIKFrame
     {

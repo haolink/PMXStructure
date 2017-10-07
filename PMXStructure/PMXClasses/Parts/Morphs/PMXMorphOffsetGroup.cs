@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using PMXStructure.PMXClasses.Helpers;
-
-namespace PMXStructure.PMXClasses.Parts.Morphs
+namespace PMXStructure.PMXClasses
 {
     public class PMXMorphOffsetGroup : PMXMorphOffsetBase
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using PMXStructure.PMXClasses.Helpers;
 using System.Collections;
 
-namespace PMXStructure.PMXClasses.Parts.RigidBodies
+namespace PMXStructure.PMXClasses
 {
     public class PMXNoCollissionGroup : PMXBasePart, ICollection, IEnumerable
     {
