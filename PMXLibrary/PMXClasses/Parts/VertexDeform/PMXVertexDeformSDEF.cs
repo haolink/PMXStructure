@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PMXStructure.PMXClasses
 {
-    class PMXVertexDeformSDEF : PMXVertexDeformBDEF2
+    public class PMXVertexDeformSDEF : PMXVertexDeformBDEF2
     {
         public PMXVector3 C;
         public PMXVector3 R0;

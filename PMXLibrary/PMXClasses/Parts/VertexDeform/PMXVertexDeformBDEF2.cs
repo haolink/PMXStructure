@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace PMXStructure.PMXClasses
 {
-    class PMXVertexDeformBDEF2 : PMXVertexDeformBDEF1
+    public class PMXVertexDeformBDEF2 : PMXVertexDeformBDEF1
     {
         public float Bone1Weight { get; set; } //Bone 1 weighing
         public PMXBone Bone2 { get; set; } //Bone 2

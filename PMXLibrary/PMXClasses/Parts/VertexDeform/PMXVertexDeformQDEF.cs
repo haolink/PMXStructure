@@ -2,7 +2,7 @@
 
 namespace PMXStructure.PMXClasses
 {
-    class PMXVertexDeformQDEF : PMXVertexDeformBDEF4
+    public class PMXVertexDeformQDEF : PMXVertexDeformBDEF4
     {
         public PMXVertexDeformQDEF(PMXModel model, PMXVertex vertex) : base(model, vertex)
         {
