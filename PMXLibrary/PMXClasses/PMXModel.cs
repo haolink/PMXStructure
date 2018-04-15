@@ -37,6 +37,11 @@ namespace PMXStructure.PMXClasses
 
         public static PMXModel LoadFromPMXFile(string pmxFile)
         {
+            return LoadFromPMXFile(pmxFile, new PMXModelDescriptor());
+        }
+
+        public static PMXModel LoadFromPMXFile(string pmxFile, PMXModelDescriptor modelDescriptor)
+        {
             FileStream fs = new FileStream(pmxFile, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             byte[] buffer = new byte[3];
@@ -72,6 +77,7 @@ namespace PMXStructure.PMXClasses
                 (text_encoding == 0 ? Encoding.Unicode : Encoding.GetEncoding(932)));
 
             settings.ExtendedUV = br.ReadByte();
+            settings.ClassDescriptor = modelDescriptor;
 
             PMXModel md = new PMXModel();
 
@@ -93,7 +99,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < vertexCount; i++)
             {
-                PMXVertex v = new PMXVertex(md);
+                PMXVertex v = (PMXVertex)Activator.CreateInstance(modelDescriptor.VertexType.StoredType, new object[] { md });
                 v.LoadFromStream(br, settings);
                 md.Vertices.Add(v);
                 allParts.Add(v);
@@ -112,7 +118,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < triangleCount; i++)
             {
-                PMXTriangle t = new PMXTriangle(md);
+                PMXTriangle t = (PMXTriangle)Activator.CreateInstance(modelDescriptor.TriangleType.StoredType, new object[] { md });
                 t.LoadFromStream(br, settings);
                 importTriangles.Add(t);
                 allParts.Add(t);
@@ -135,7 +141,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < materialCount; i++)
             {
-                PMXMaterial mt = new PMXMaterial(md);
+                PMXMaterial mt = (PMXMaterial)Activator.CreateInstance(modelDescriptor.MaterialType.StoredType, new object[] { md });
                 mt.LoadFromStream(br, settings, textures, importTriangles);
                 md.Materials.Add(mt);
                 allParts.Add(mt);
@@ -151,7 +157,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < boneCount; i++)
             {
-                PMXBone bn = new PMXBone(md);
+                PMXBone bn = (PMXBone)Activator.CreateInstance(modelDescriptor.BoneType.StoredType, new object[] { md });
                 bn.LoadFromStream(br, settings);
                 md.Bones.Add(bn);
                 allParts.Add(bn);
@@ -162,7 +168,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < morphCount; i++)
             {
-                PMXMorph mrph = new PMXMorph(md);
+                PMXMorph mrph = (PMXMorph)Activator.CreateInstance(modelDescriptor.MorphType.StoredType, new object[] { md });
                 mrph.LoadFromStream(br, settings);
                 md.Morphs.Add(mrph);
                 allParts.Add(mrph);
@@ -185,7 +191,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < rigidBodyCount; i++)
             {
-                PMXRigidBody rb = new PMXRigidBody(md);
+                PMXRigidBody rb = (PMXRigidBody)Activator.CreateInstance(modelDescriptor.RigidBodyType.StoredType, new object[] { md });
                 rb.LoadFromStream(br, settings);
                 md.RigidBodies.Add(rb);
                 allParts.Add(rb);
@@ -196,7 +202,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < jointsCount; i++)
             {
-                PMXJoint jt = new PMXJoint(md);
+                PMXJoint jt = (PMXJoint)Activator.CreateInstance(modelDescriptor.JointType.StoredType, new object[] { md });
                 jt.LoadFromStream(br, settings);
                 md.Joints.Add(jt);
                 allParts.Add(jt);
@@ -464,6 +470,17 @@ namespace PMXStructure.PMXClasses
         /// <returns></returns>
         public static PMXModel LoadFromPMDFile(string pmdFile)
         {
+            return LoadFromPMDFile(pmdFile, new PMXModelDescriptor());
+        }
+
+        /// <summary>
+        /// Loads a model from a PMD file and converts it to PMX internally.
+        /// </summary>
+        /// <param name="pmdFile">PMD file name</param>
+        /// <param name="modelDescriptor">Classes to use during import</param>
+        /// <returns></returns>
+        public static PMXModel LoadFromPMDFile(string pmdFile, PMXModelDescriptor modelDescriptor)
+        {
             FileStream fs = new FileStream(pmdFile, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             byte[] buffer = new byte[3];
@@ -486,6 +503,7 @@ namespace PMXStructure.PMXClasses
             MMDImportSettings settings = new MMDImportSettings(MMDImportSettings.ModelFormat.PMD);
             List<PMXBasePart> allParts = new List<PMXBasePart>();
 
+            settings.ClassDescriptor = modelDescriptor;
             settings.TextEncoding = Encoding.GetEncoding(932);
             settings.ExtendedUV = 0;
 
@@ -499,7 +517,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < vertexCount; i++)
             {
-                PMXVertex v = new PMXVertex(md);
+                PMXVertex v = (PMXVertex)Activator.CreateInstance(modelDescriptor.VertexType.StoredType, new object[] { md });
                 v.LoadFromStream(br, settings);
                 md.Vertices.Add(v);
                 allParts.Add(v);
@@ -518,7 +536,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < triangleCount; i++)
             {
-                PMXTriangle t = new PMXTriangle(md);
+                PMXTriangle t = (PMXTriangle)Activator.CreateInstance(modelDescriptor.TriangleType.StoredType, new object[] { md });
                 t.LoadFromStream(br, settings);
                 importTriangles.Add(t);
                 allParts.Add(t);
@@ -529,7 +547,7 @@ namespace PMXStructure.PMXClasses
 
             for (int i = 0; i < materialCount; i++)
             {
-                PMXMaterial mt = new PMXMaterial(md);
+                PMXMaterial mt = (PMXMaterial)Activator.CreateInstance(modelDescriptor.MaterialType.StoredType, new object[] { md });
                 mt.LoadFromStream(br, settings, null, importTriangles);
                 md.Materials.Add(mt);
 
@@ -544,7 +562,7 @@ namespace PMXStructure.PMXClasses
             
             for (int i = 0; i < boneCount; i++)
             {
-                PMXBone bn = new PMXBone(md);
+                PMXBone bn = (PMXBone)Activator.CreateInstance(modelDescriptor.BoneType.StoredType, new object[] { md });
                 bn.LoadFromStream(br, settings);
                 md.Bones.Add(bn);
                 allParts.Add(bn);
@@ -564,7 +582,7 @@ namespace PMXStructure.PMXClasses
             uint mCount = (uint)br.ReadUInt16();
             for (int i = 0; i < mCount; i++)
             {
-                PMXMorph mrph = new PMXMorph(md);
+                PMXMorph mrph = (PMXMorph)Activator.CreateInstance(modelDescriptor.MorphType.StoredType, new object[] { md });
                 mrph.LoadFromStream(br, settings);
 
                 if(mrph.NameJP == "base")
@@ -689,7 +707,7 @@ namespace PMXStructure.PMXClasses
 
                 for (int i = 0; i < rigidBodyCount; i++)
                 {
-                    PMXRigidBody rb = new PMXRigidBody(md);
+                    PMXRigidBody rb = (PMXRigidBody)Activator.CreateInstance(modelDescriptor.RigidBodyType.StoredType, new object[] { md });
                     rb.LoadFromStream(br, settings);
                     md.RigidBodies.Add(rb);
                     allParts.Add(rb);
@@ -700,7 +718,7 @@ namespace PMXStructure.PMXClasses
 
                 for (int i = 0; i < jointsCount; i++)
                 {
-                    PMXJoint jt = new PMXJoint(md);
+                    PMXJoint jt = (PMXJoint)Activator.CreateInstance(modelDescriptor.JointType.StoredType, new object[] { md });
                     jt.LoadFromStream(br, settings);
                     md.Joints.Add(jt);
                     allParts.Add(jt);

@@ -95,12 +95,15 @@ namespace PMXStructure.VMDClasses
                 vf.Shadow.Add(vsf);
             }
 
-            uint ikCount = br.ReadUInt32();
-            for (int i = 0; i < ikCount; i++)
+            if (br.BaseStream.Position < br.BaseStream.Length)
             {
-                VMDIKFrame vif = new VMDIKFrame();
-                vif.LoadFromStream(br);
-                vf.IK.Add(vif);
+                uint ikCount = br.ReadUInt32();
+                for (int i = 0; i < ikCount; i++)
+                {
+                    VMDIKFrame vif = new VMDIKFrame();
+                    vif.LoadFromStream(br);
+                    vf.IK.Add(vif);
+                }
             }
 
             return vf;

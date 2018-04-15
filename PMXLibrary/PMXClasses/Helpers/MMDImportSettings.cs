@@ -19,6 +19,8 @@ namespace PMXStructure.PMXClasses
             }
         }
 
+        public PMXModelDescriptor ClassDescriptor { get; set; }
+
         public Encoding TextEncoding { get; set; }
         public byte ExtendedUV { get; set; }
 

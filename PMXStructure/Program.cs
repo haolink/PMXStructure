@@ -8,7 +8,7 @@ namespace PMXStructure
 {
     class Program
     {
-        static bool CompareTwoFile(string file1, string file2)
+        /*static bool CompareTwoFile(string file1, string file2)
         {
             FileStream fs1 = new FileStream(file1, FileMode.Open, FileAccess.Read, FileShare.Read);
             FileStream fs2 = new FileStream(file2, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -100,218 +100,325 @@ namespace PMXStructure
 
             /*try
             {*/
-            /*    foreach (string file in inputFiles) 
-                {
-                    string fn = Path.GetFileNameWithoutExtension(file);
-                    Console.Write(fn + " - ");
-                    md = PMXModel.LoadFromPMXFile(file);
-                    Console.Write(" written - ");
-                    md.SaveToFile(tmpFile);
+        /*    foreach (string file in inputFiles) 
+            {
+                string fn = Path.GetFileNameWithoutExtension(file);
+                Console.Write(fn + " - ");
+                md = PMXModel.LoadFromPMXFile(file);
+                Console.Write(" written - ");
+                md.SaveToFile(tmpFile);
 
-                    if(!CompareTwoFile(file, tmpFile))
-                    {                        
-                        break;
-                    }
-
-                    Console.WriteLine("");
+                if(!CompareTwoFile(file, tmpFile))
+                {                        
+                    break;
                 }
-            /*}
-            catch (Exception ex)
+
+                Console.WriteLine("");
+            }
+        /*}
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }*/
+
+        //WriteTestModel();
+
+        /*md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
+
+        md.SaveToPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmd");
+        md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");*/
+
+        //Console.WriteLine(md.Materials.Count);
+
+        /*VMDFile vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
+        vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSongSave.vmd");
+        Console.WriteLine(vf.ModelName);
+
+        vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\Camera.vmd");
+        vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\CameraSave.vmd");
+        Console.WriteLine(vf.ModelName);*/
+
+        /*PMXModel pmx = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room.pmx");
+        float mdlScale = 3.0f;
+
+        foreach (PMXVertex vtx in pmx.Vertices)
+        {
+            vtx.Position *= mdlScale;
+
+            if (vtx.Deform is PMXVertexDeformSDEF)
             {
-                Console.WriteLine(ex.Message);
-            }*/
-
-            //WriteTestModel();
-
-            /*md = PMXModel.LoadFromPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\初音ミクVer2.pmd");
-
-            md.SaveToPMDFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmd");
-            md.SaveToFile(@"D:\mmd\MikuMikuDance\UserFile\Model\MikuV2.pmx");*/
-
-            //Console.WriteLine(md.Materials.Count);
-
-            /*VMDFile vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
-            vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSongSave.vmd");
-            Console.WriteLine(vf.ModelName);
-
-            vf = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\Camera.vmd");
-            vf.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\CameraSave.vmd");
-            Console.WriteLine(vf.ModelName);*/
-
-            /*PMXModel pmx = PMXModel.LoadFromPMXFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room.pmx");
-            float mdlScale = 3.0f;
-
-            foreach (PMXVertex vtx in pmx.Vertices)
+                PMXVertexDeformSDEF vd = (PMXVertexDeformSDEF)vtx.Deform;
+                vd.C *= mdlScale;
+                vd.R0 *= mdlScale;
+                vd.R1 *= mdlScale;
+            }
+        }
+        foreach (PMXMaterial mat in pmx.Materials)
+        {
+            mat.EdgeSize *= mdlScale;
+        }
+        foreach (PMXBone bn in pmx.Bones)
+        {
+            bn.Position *= mdlScale;
+        }
+        foreach (PMXMorph mrph in pmx.Morphs)
+        {
+            foreach (PMXMorphOffsetBase offset in mrph.Offsets)
             {
-                vtx.Position *= mdlScale;
-
-                if (vtx.Deform is PMXVertexDeformSDEF)
+                if (offset is PMXMorphOffsetVertex)
                 {
-                    PMXVertexDeformSDEF vd = (PMXVertexDeformSDEF)vtx.Deform;
-                    vd.C *= mdlScale;
-                    vd.R0 *= mdlScale;
-                    vd.R1 *= mdlScale;
+                    PMXMorphOffsetVertex ov = (PMXMorphOffsetVertex)offset;
+                    ov.Translation *= mdlScale;
                 }
-            }
-            foreach (PMXMaterial mat in pmx.Materials)
-            {
-                mat.EdgeSize *= mdlScale;
-            }
-            foreach (PMXBone bn in pmx.Bones)
-            {
-                bn.Position *= mdlScale;
-            }
-            foreach (PMXMorph mrph in pmx.Morphs)
-            {
-                foreach (PMXMorphOffsetBase offset in mrph.Offsets)
+                if (offset is PMXMorphOffsetBone)
                 {
-                    if (offset is PMXMorphOffsetVertex)
-                    {
-                        PMXMorphOffsetVertex ov = (PMXMorphOffsetVertex)offset;
-                        ov.Translation *= mdlScale;
-                    }
-                    if (offset is PMXMorphOffsetBone)
-                    {
-                        PMXMorphOffsetBone ob = (PMXMorphOffsetBone)offset;
-                        ob.Translation *= mdlScale;
-                    }
-                }
-            }
-            foreach (PMXRigidBody rg in pmx.RigidBodies)
-            {
-                rg.Position *= mdlScale;
-                rg.Width *= mdlScale;
-                rg.Height *= mdlScale;
-                rg.Depth *= mdlScale;
-            }
-            foreach (PMXJoint jt in pmx.Joints)
-            {
-                jt.Position *= mdlScale;
-                jt.TranslationLimitMin *= mdlScale;
-                jt.TranslationLimitMax *= mdlScale;
-            }
-
-            pmx.SaveToFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room_scale.pmx");*/
-
-            /*float mdlScale = 3.0f;
-
-            VMDFile vmd = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong.vmd");
-            foreach (VMDBoneFrame vbf in vmd.Bones)
-            {
-                vbf.Translation *= mdlScale;
-            }
-
-            foreach (VMDCameraFrame vcf in vmd.Camera)
-            {
-                vcf.Distance *= mdlScale;
-                vcf.Position *= mdlScale;
-            }
-
-            vmd.SaveToFile(@"D:\mmd\Data\Motion\LoveSong\LoveSong_scale.vmd"); */
-
-            md = PMXModel.LoadFromPMXFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape.pmx");
-
-            foreach(PMXVertex vtx in md.Vertices)
-            {
-                vtx.Position.X *= -1.0f;
-                vtx.Normals.X *= -1.0f;
-                //vtx.UV.V *= -1.0f;
-            }
-
-            PMXVertex vb;
-            foreach (PMXMaterial mt in md.Materials)
-            {
-                foreach(PMXTriangle vtr in mt.Triangles)
-                {
-                    vb = vtr.Vertex1;
-                    vtr.Vertex1 = vtr.Vertex3;
-                    vtr.Vertex3 = vb;                    
+                    PMXMorphOffsetBone ob = (PMXMorphOffsetBone)offset;
+                    ob.Translation *= mdlScale;
                 }
             }
-
-            foreach (PMXBone bn in md.Bones)
-            {
-                bn.Position.X *= -1.0f;
-                if(!bn.HasChildBone)
-                {
-                    bn.ChildVector.X *= 1.0f;
-                }
-            }
-
-            md.SaveToFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape2.pmx");
-
-            Console.ReadLine();
+        }
+        foreach (PMXRigidBody rg in pmx.RigidBodies)
+        {
+            rg.Position *= mdlScale;
+            rg.Width *= mdlScale;
+            rg.Height *= mdlScale;
+            rg.Depth *= mdlScale;
+        }
+        foreach (PMXJoint jt in pmx.Joints)
+        {
+            jt.Position *= mdlScale;
+            jt.TranslationLimitMin *= mdlScale;
+            jt.TranslationLimitMax *= mdlScale;
         }
 
-        private static void WriteTestModel()
+        pmx.SaveToFile(@"D:\mmd\Data\Model\Stages\OtakuRoom\Otaku Room_scale.pmx");*/
+
+        /*float mdlScale = 3.0f;
+
+        VMDFile vmd = VMDFile.LoadFromFile(@"D:\mmd\Data\Motion\YAHHO\YAHHO_MikuVer2.vmd");
+        foreach (VMDBoneFrame vbf in vmd.Bones)
         {
-            PMXModel md = new PMXModel();
-            md.NameEN = "Cube";
-            md.NameJP = "Cube";
-            md.DescriptionEN = "Cube Desc";
-            md.DescriptionJP = "Cube Desc";
+            vbf.Translation *= mdlScale;
+        }
 
-            PMXBone bn = new PMXBone(md);
-            bn.NameJP = "Root";
-            bn.NameEN = "Root";
-            bn.Position = new PMXVector3(0.0f, 0.0f, 0.0f);
-            bn.HasChildBone = false;
-            bn.ChildVector = new PMXVector3(0.0f, 15.0f, 0.0f);
-            bn.Translatable = true;
+        foreach (VMDCameraFrame vcf in vmd.Camera)
+        {
+            vcf.Distance *= mdlScale;
+            vcf.Position *= mdlScale;
+        }
 
-            md.Bones.Add(bn);
+        vmd.SaveToFile(@"D:\mmd\Data\Motion\YAHHO\YAHHO_Sora_scale.vmd"); */
 
-            PMXVector3[,] vertices = new PMXVector3[8, 3]
+        /*md = PMXModel.LoadFromPMXFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape.pmx");
+
+        foreach(PMXVertex vtx in md.Vertices)
+        {
+            vtx.Position.X *= -1.0f;
+            vtx.Normals.X *= -1.0f;
+            //vtx.UV.V *= -1.0f;
+        }
+
+        PMXVertex vb;
+        foreach (PMXMaterial mt in md.Materials)
+        {
+            foreach(PMXTriangle vtr in mt.Triangles)
             {
-                { new PMXVector3(-5.0f,  0.0f, -5.0f), new PMXVector3(-1.0f, -1.0f, -1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
-                { new PMXVector3(-5.0f,  10.0f, -5.0f), new PMXVector3(-1.0f,  1.0f, -1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
-                { new PMXVector3( 5.0f,  0.0f, -5.0f), new PMXVector3( 1.0f, -1.0f, -1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
-                { new PMXVector3( 5.0f,  10.0f, -5.0f), new PMXVector3( 1.0f,  1.0f, -1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
-                { new PMXVector3(-5.0f,  0.0f,  5.0f), new PMXVector3(-1.0f, -1.0f,  1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
-                { new PMXVector3(-5.0f,  10.0f,  5.0f), new PMXVector3(-1.0f,  1.0f,  1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
-                { new PMXVector3( 5.0f,  0.0f,  5.0f), new PMXVector3( 1.0f, -1.0f,  1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
-                { new PMXVector3( 5.0f,  10.0f,  5.0f), new PMXVector3( 1.0f,  1.0f,  1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
-            };
+                vb = vtr.Vertex1;
+                vtr.Vertex1 = vtr.Vertex3;
+                vtr.Vertex3 = vb;                    
+            }
+        }
 
-            for (int i = 0; i < 8; i++)
+        foreach (PMXBone bn in md.Bones)
+        {
+            bn.Position.X *= -1.0f;
+            if(!bn.HasChildBone)
             {
-                PMXVertex vtx = new PMXVertex(md);
-                vtx.Position = vertices[i, 0];
-                vtx.Normals = vertices[i, 1];
-                vtx.UV = new PMXVector2(vertices[i, 2].X, vertices[i, 2].Y);
+                bn.ChildVector.X *= 1.0f;
+            }
+        }
 
-                md.Vertices.Add(vtx);
+        md.SaveToFile(@"F:\Steam\SteamApps\common\Megadimension Neptunia VII\CONTENTS\GAME\model\chara\031\vertnew\vert_shape2.pmx");*/
+        /*
+        Console.ReadLine();
+    }
+
+    private static void WriteTestModel()
+    {
+        PMXModel md = new PMXModel();
+        md.NameEN = "Cube";
+        md.NameJP = "Cube";
+        md.DescriptionEN = "Cube Desc";
+        md.DescriptionJP = "Cube Desc";
+
+        PMXBone bn = new PMXBone(md);
+        bn.NameJP = "Root";
+        bn.NameEN = "Root";
+        bn.Position = new PMXVector3(0.0f, 0.0f, 0.0f);
+        bn.HasChildBone = false;
+        bn.ChildVector = new PMXVector3(0.0f, 15.0f, 0.0f);
+        bn.Translatable = true;
+
+        md.Bones.Add(bn);
+
+        PMXVector3[,] vertices = new PMXVector3[8, 3]
+        {
+            { new PMXVector3(-5.0f,  0.0f, -5.0f), new PMXVector3(-1.0f, -1.0f, -1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
+            { new PMXVector3(-5.0f,  10.0f, -5.0f), new PMXVector3(-1.0f,  1.0f, -1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
+            { new PMXVector3( 5.0f,  0.0f, -5.0f), new PMXVector3( 1.0f, -1.0f, -1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
+            { new PMXVector3( 5.0f,  10.0f, -5.0f), new PMXVector3( 1.0f,  1.0f, -1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
+            { new PMXVector3(-5.0f,  0.0f,  5.0f), new PMXVector3(-1.0f, -1.0f,  1.0f), new PMXVector3(0.0f, 0.0f, 0.0f) },
+            { new PMXVector3(-5.0f,  10.0f,  5.0f), new PMXVector3(-1.0f,  1.0f,  1.0f), new PMXVector3(0.0f, 1.0f, 0.0f) },
+            { new PMXVector3( 5.0f,  0.0f,  5.0f), new PMXVector3( 1.0f, -1.0f,  1.0f), new PMXVector3(1.0f, 0.0f, 0.0f) },
+            { new PMXVector3( 5.0f,  10.0f,  5.0f), new PMXVector3( 1.0f,  1.0f,  1.0f), new PMXVector3(1.0f, 1.0f, 0.0f) },
+        };
+
+        for (int i = 0; i < 8; i++)
+        {
+            PMXVertex vtx = new PMXVertex(md);
+            vtx.Position = vertices[i, 0];
+            vtx.Normals = vertices[i, 1];
+            vtx.UV = new PMXVector2(vertices[i, 2].X, vertices[i, 2].Y);
+
+            md.Vertices.Add(vtx);
+        }
+
+        PMXMaterial mat = new PMXMaterial(md);
+        mat.NameJP = "Base";
+        mat.NameEN = "Base";
+        mat.DiffuseTexture = "arrow.png";
+        mat.Diffuse = new PMXColorRGB(1.0f, 1.0f, 1.0f);
+        mat.Specular = new PMXColorRGB(0.0f, 0.0f, 0.0f);
+        mat.Ambient = new PMXColorRGB(0.7f, 0.7f, 0.7f);
+
+        int[,] triangleBases = new int[12, 3]
+        {
+            { 0, 1, 2 }, { 1, 3, 2 },
+            { 6, 4, 0 }, { 0, 2, 6 },
+            { 2, 3, 6 }, { 3, 7, 6 },
+            { 4, 5, 0 }, { 5, 1, 0 },
+            { 1, 5, 3 }, { 5, 7, 3 },
+            { 4, 6, 5 }, { 6, 7, 5 }
+        };
+
+        for (int i = 0; i < 12; i++)
+        {
+            PMXTriangle mxt = new PMXTriangle(md, md.Vertices[triangleBases[i, 0]], md.Vertices[triangleBases[i, 1]], md.Vertices[triangleBases[i, 2]]);
+            mat.Triangles.Add(mxt);
+        }
+        md.Materials.Add(mat);
+
+        md.DisplaySlots[0].References.Add(bn);
+
+        md.NormalizeNormalVectors();
+        md.SaveToFile(@"D:\mmd\cube.pmx");
+    }*/
+        
+        static void Main(string[] args)
+        {
+            /*string fle = @"D:\mmd\Data\Model\Anime\ikamusume\vrc\ika.pmx";
+
+            PMXModel pmx = PMXModel.LoadFromPMXFile(fle);
+            PMXBone spine = pmx.Bones[1];
+            PMXBone chest = pmx.Bones[2];
+
+            foreach(PMXVertex v in pmx.Vertices)
+            {
+                if(v.Position.Y < 11.5f)
+                {
+                    continue;
+                }
+
+                if(v.Deform is PMXVertexDeformBDEF1)
+                {
+                    if(((PMXVertexDeformBDEF1)v.Deform).Bone1 == spine)
+                    {
+                        ((PMXVertexDeformBDEF1)v.Deform).Bone1 = chest;
+                    }
+                }
+                if (v.Deform is PMXVertexDeformBDEF2)
+                {
+                    if (((PMXVertexDeformBDEF2)v.Deform).Bone2 == spine)
+                    {
+                        ((PMXVertexDeformBDEF2)v.Deform).Bone2 = chest;
+                    }
+                }
+
+                if (v.Deform is PMXVertexDeformBDEF4)
+                {
+                    if (((PMXVertexDeformBDEF4)v.Deform).Bone3 == spine)
+                    {
+                        ((PMXVertexDeformBDEF4)v.Deform).Bone3 = chest;
+                    }
+                    if (((PMXVertexDeformBDEF4)v.Deform).Bone4 == spine)
+                    {
+                        ((PMXVertexDeformBDEF4)v.Deform).Bone4 = chest;
+                    }
+                }
+
+                if (v.Deform is PMXVertexDeformSDEF)
+                {
+                    if (((PMXVertexDeformSDEF)v.Deform).Bone1 == spine)
+                    {
+                        ((PMXVertexDeformSDEF)v.Deform).Bone1 = chest;
+                    }
+                    if (((PMXVertexDeformSDEF)v.Deform).Bone2 == spine)
+                    {
+                        ((PMXVertexDeformSDEF)v.Deform).Bone2 = chest;
+                    }
+                }
             }
 
-            PMXMaterial mat = new PMXMaterial(md);
-            mat.NameJP = "Base";
-            mat.NameEN = "Base";
-            mat.DiffuseTexture = "arrow.png";
-            mat.Diffuse = new PMXColorRGB(1.0f, 1.0f, 1.0f);
-            mat.Specular = new PMXColorRGB(0.0f, 0.0f, 0.0f);
-            mat.Ambient = new PMXColorRGB(0.7f, 0.7f, 0.7f);
-
-            int[,] triangleBases = new int[12, 3]
+            foreach (PMXBone b in pmx.Bones)
             {
-                { 0, 1, 2 }, { 1, 3, 2 },
-                { 6, 4, 0 }, { 0, 2, 6 },
-                { 2, 3, 6 }, { 3, 7, 6 },
-                { 4, 5, 0 }, { 5, 1, 0 },
-                { 1, 5, 3 }, { 5, 7, 3 },
-                { 4, 6, 5 }, { 6, 7, 5 }
-            };
-
-            for (int i = 0; i < 12; i++)
-            {
-                PMXTriangle mxt = new PMXTriangle(md, md.Vertices[triangleBases[i, 0]], md.Vertices[triangleBases[i, 1]], md.Vertices[triangleBases[i, 2]]);
-                mat.Triangles.Add(mxt);
+                if(b.NameEN != null && b.NameEN.Trim() != "")
+                {
+                    b.NameJP = b.NameEN;
+                }
             }
-            md.Materials.Add(mat);
 
-            md.DisplaySlots[0].References.Add(bn);
+            pmx.SaveToFile(@"D:\mmd\Data\Model\Anime\ikamusume\vrc\ika-rig.pmx");*/
 
-            md.NormalizeNormalVectors();
-            md.SaveToFile(@"D:\mmd\cube.pmx");
+            if (args.Length < 1)
+            {
+                return;
+            }
+
+            string fileName = args[0];
+
+            PMXModel pmx = PMXModel.LoadFromPMXFile(fileName);
+
+            /*foreach (PMXBone t in pmx.Bones)
+            {
+                if (t.NameEN != null && t.NameEN.Trim().Length > 0)
+                {
+                    t.NameJP = t.NameEN;
+                }
+            }
+            foreach (PMXMorph t in pmx.Morphs)
+            {
+                if (t.NameEN != null && t.NameEN.Trim().Length > 0)
+                {
+                    t.NameJP = t.NameEN;
+                }
+            }
+            foreach (PMXMaterial t in pmx.Materials)
+            {
+                if (t.NameEN != null && t.NameEN.Trim().Length > 0)
+                {
+                    t.NameJP = t.NameEN;
+                }
+            }
+            foreach (PMXDisplaySlot t in pmx.DisplaySlots)
+            {
+                if (t.NameEN != null && t.NameEN.Trim().Length > 0)
+                {
+                    t.NameJP = t.NameEN;
+                }
+            }*/
+
+            File.Copy(fileName, fileName + ".bak", true);
+            pmx.SaveToFile(fileName);
         }
     }
 }
